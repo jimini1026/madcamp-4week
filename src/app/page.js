@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -18,7 +19,7 @@ export default function Home() {
           <hr className="color-white mt-3" />
         </div>
         <div className="text-white text-3xl font-bold pt-9 pl-44">
-          Join the site {">>"}
+          <Link href="/login">Join the site {">>"}</Link>
         </div>
         {/* <div className="text-white text-3xl font-bold absolute right-[20rem] top-36">
         Hello 임지민!
