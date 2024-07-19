@@ -29,3 +29,12 @@ body {
     text-wrap: balance;
   }
 }
+
+html,
+body {
+  @apply m-0 p-0 overflow-hidden h-full;
+}
+
+#__next {
+  @apply h-full;
+}
