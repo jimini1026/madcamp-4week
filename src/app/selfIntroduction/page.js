@@ -1,10 +1,19 @@
 "use client";
 
-import React, { useState } from 'react';
-
 import Link from "next/link";
+import { useEffect } from "react";
 
 export default function SelfIntroduction() {
+  useEffect(() => {
+    // SelfIntroduction 페이지에 진입할 때 overflow-auto 설정
+    document.body.style.overflow = "auto";
+
+    // 페이지를 벗어날 때 overflow-hidden으로 되돌림
+    return () => {
+      document.body.style.overflow = "hidden";
+    };
+  }, []);
+
   const SelfIntroductionList = ({ title }) => {
     return (
       <div className="border rounded-xl py-5 px-10 flex items-center relative">
@@ -20,18 +29,18 @@ export default function SelfIntroduction() {
   };
 
   return (
-    <div className="min-h-full bg-customGrayLight px-72 pt-10 pb-14">
+    <div className="self-introduction-container min-h-full bg-customGrayLight px-72 pt-10 pb-14">
       <div className="shadow-xl rounded-xl">
-        <div className="font-bold rounded-t-xl text-3xl bg-customBlue h-20 flex items-center px-20 text-white">
+        <div className="font-bold rounded-t-xl text-3xl bg-customBlue h-20 flex items-center px-28 text-white">
           자소서 관리
         </div>
         <div className="bg-white py-5 flex items-center text-right relative min-w-full">
           <input
             placeholder="search your list..."
-            className="border rounded-lg pr-28 h-10 w-[25rem] px-5 ml-[6rem]"
+            className="border rounded-lg pr-28 h-10 w-[25rem] px-5 ml-[15rem]"
           />
-          <button className="absolute left-[26rem]">Search</button>
-          <div className="bg-customBlue rounded-lg px-4 py-2 ml-[15rem]">
+          <button className="absolute right-[20rem]">Search</button>
+          <div className="bg-customBlue rounded-lg px-4 py-2 ml-[6.5rem]">
             <Link
               href="/selfIntroduction/create"
               className="text-white font-semibold"

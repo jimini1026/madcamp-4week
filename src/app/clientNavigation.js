@@ -2,13 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
 import Image from "next/image";
 
 export default function ClientNavigation() {
   const pathname = usePathname();
-
-  useEffect(() => console.log(pathname), [pathname]);
 
   return (
     <div className="h-16 flex items-center border-black overflow-hidden shadow-lg">
@@ -26,7 +23,7 @@ export default function ClientNavigation() {
       <Link href="/selfIntroduction">
         <div
           className={`font-bold w-[4rem] mx-2 text-center ${
-            pathname === "/selfIntroduction"
+            pathname.startsWith("/selfIntroduction")
               ? "border-b-4 border-black"
               : "text-customGray"
           }`}
@@ -37,7 +34,7 @@ export default function ClientNavigation() {
       <Link href="/virtualInterview">
         <div
           className={`font-bold w-[4rem] mx-2 text-center ${
-            pathname === "/virtualInterview"
+            pathname.startsWith("/virtualInterview")
               ? "border-b-4 border-black"
               : "text-customGray"
           }`}
