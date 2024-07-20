@@ -2,13 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
 import Image from "next/image";
 
 export default function ClientNavigation() {
   const pathname = usePathname();
-
-  useEffect(() => console.log(pathname), [pathname]);
 
   return (
     <div className="h-16 flex items-center border-black overflow-hidden shadow-lg">

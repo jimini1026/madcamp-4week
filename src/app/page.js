@@ -1,7 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
+
   return (
     <div className="relative h-screen overflow-hidden">
       <div className="absolute top-[-2rem] w-full -z-10">
@@ -21,9 +24,6 @@ export default function Home() {
         <div className="text-white text-3xl font-bold pt-9 pl-44">
           <Link href="/login">Join the site {">>"}</Link>
         </div>
-        {/* <div className="text-white text-3xl font-bold absolute right-[20rem] top-36">
-        Hello 임지민!
-      </div> */}
       </div>
       <div className="absolute right-[20rem] top-[24rem]">
         <div className="text-customBlue text-2xl font-bold text-right">
@@ -44,7 +44,7 @@ export default function Home() {
         />
       </div>
       <div className="absolute bottom-0 w-full">
-        <Image src="/images/mainGray.png" width={1920} height={1080} />
+        <Image src="/images/mainGray.png" width={1920} height={1080} alt="Main Gray Image" />
       </div>
     </div>
   );
