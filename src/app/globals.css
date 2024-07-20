@@ -1,3 +1,5 @@
+/* global.css */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -20,7 +22,6 @@ body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  /* 아래 코드를 추가하여 기본 스타일을 초기화 */
   background: none;
 }
 
@@ -32,9 +33,14 @@ body {
 
 html,
 body {
-  @apply m-0 p-0 overflow-hidden h-full;
+  @apply m-0 p-0 h-full;
 }
 
 #__next {
   @apply h-full;
+}
+
+/* SelfIntroduction 페이지의 overflow 속성을 해제 */
+.overflow-auto {
+  overflow: auto !important;
 }
