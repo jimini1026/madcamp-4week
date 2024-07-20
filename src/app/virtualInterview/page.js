@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function VirtualInterview() {
   const [isRecording, setIsRecording] = useState(false);
@@ -8,6 +9,7 @@ export default function VirtualInterview() {
   const [audioURL, setAudioURL] = useState('');
   const [transcript, setTranscript] = useState('');
   const [error, setError] = useState('');
+  const router = useRouter(); // Initialize the router
 
   const handleStartRecording = async () => {
     try {
@@ -24,36 +26,26 @@ export default function VirtualInterview() {
         const audioUrl = URL.createObjectURL(audioBlob);
         setAudioURL(audioUrl);
 
-        // 서버에 오디오 데이터 전송
         const formData = new FormData();
         formData.append('audio', audioBlob, 'recording.wav');
 
         try {
-          console.log('Sending audio to server...');
-          console.log('Audio Blob:', audioBlob);
-          console.log('Form Data:', formData.get('audio'));
-
           const response = await fetch('/api/recognize', {
             method: 'POST',
             body: formData,
           });
-
-          console.log('Server response:', response);
 
           if (!response.ok) {
             throw new Error('Network response was not ok');
           }
 
           const data = await response.json();
-          console.log('Response data:', data);
-          
           if (data.error) {
             setError(data.error);
           } else {
             setTranscript(data.transcript);
           }
         } catch (err) {
-          console.error('Fetch error:', err);
           setError('Failed to send audio to server');
         }
       };
@@ -61,7 +53,6 @@ export default function VirtualInterview() {
       mediaRecorderRef.current.start();
       setIsRecording(true);
     } catch (err) {
-      console.error('Error starting recording:', err);
       setError('Failed to start recording');
     }
   };
@@ -71,35 +62,47 @@ export default function VirtualInterview() {
     setIsRecording(false);
   };
 
+  const handleNavigate = () => {
+    router.push('/streamingavatar');
+  };
+
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
-      <h1 className="text-2xl font-bold mb-6">모의면접 페이지</h1>
+      <h1 className="text-2xl font-bold mb-6">Virtual Interview Page</h1>
       <div className="flex justify-center mb-4">
         <button
           onClick={isRecording ? handleStopRecording : handleStartRecording}
           className={`px-4 py-2 font-bold text-white rounded ${isRecording ? 'bg-red-500' : 'bg-blue-500'}`}
         >
-          {isRecording ? '녹음 중지' : '녹음 시작'}
+          {isRecording ? 'Stop Recording' : 'Start Recording'}
         </button>
       </div>
       {audioURL && (
         <div className="mt-4">
-          <h2 className="text-xl font-bold mb-2">녹음된 오디오:</h2>
+          <h2 className="text-xl font-bold mb-2">Recorded Audio:</h2>
           <audio src={audioURL} controls />
         </div>
       )}
       {transcript && (
         <div className="mt-4">
-          <h2 className="text-xl font-bold mb-2">변환된 텍스트:</h2>
+          <h2 className="text-xl font-bold mb-2">Transcript:</h2>
           <p>{transcript}</p>
         </div>
       )}
       {error && (
         <div className="mt-4 text-red-500">
-          <h2 className="text-xl font-bold mb-2">오류:</h2>
+          <h2 className="text-xl font-bold mb-2">Error:</h2>
           <p>{error}</p>
         </div>
       )}
+      <div className="flex justify-center mt-6">
+        <button
+          onClick={handleNavigate}
+          className="px-4 py-2 font-bold text-white bg-green-500 rounded"
+        >
+          Go to Streaming Avatar
+        </button>
+      </div>
     </div>
   );
 }
