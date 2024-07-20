@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 
 export default function Create() {
   const gemini = new GoogleGenerativeAI(
-    "AIzaSyDpk9XhKNa4ICbXDNHvyBpc-VvmkMHGm5Y"
+    "api"
   );
 
   const {
