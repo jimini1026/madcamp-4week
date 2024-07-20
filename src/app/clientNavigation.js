@@ -11,9 +11,9 @@ export default function ClientNavigation() {
   useEffect(() => console.log(pathname), [pathname]);
 
   return (
-    <div className="h-16 flex items-center border-b-2 border-black overflow-hidden">
+    <div className="h-16 flex items-center border-black overflow-hidden shadow-lg">
       <div className="font-bold text-xl pl-[8rem] pr-[3rem]">Daesi</div>
-      <div className="border-l-[0.09rem] border-black h-full mx-4"></div>
+      <div className="border-l-[0.09rem] border-customGray h-full mx-4"></div>
       <Link href="/" className="ml-[43rem]">
         <div
           className={`font-bold w-[4rem] mx-2 text-center ${
