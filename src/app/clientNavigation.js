@@ -26,7 +26,7 @@ export default function ClientNavigation() {
       <Link href="/selfIntroduction">
         <div
           className={`font-bold w-[4rem] mx-2 text-center ${
-            pathname === "/selfIntroduction"
+            pathname.startsWith("/selfIntroduction")
               ? "border-b-4 border-black"
               : "text-customGray"
           }`}
@@ -37,7 +37,7 @@ export default function ClientNavigation() {
       <Link href="/virtualInterview">
         <div
           className={`font-bold w-[4rem] mx-2 text-center ${
-            pathname === "/virtualInterview"
+            pathname.startsWith("/virtualInterview")
               ? "border-b-4 border-black"
               : "text-customGray"
           }`}
