@@ -43,4 +43,5 @@ body {
 /* SelfIntroduction 페이지의 overflow 속성을 해제 */
 .overflow-auto {
   overflow: auto !important;
+
 }

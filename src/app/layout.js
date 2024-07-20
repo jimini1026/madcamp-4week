@@ -39,9 +39,9 @@ export default function RootLayout({ children }) {
         <link rel="icon" href={metadata.icons.icon} />
       </head>
       <body className={clsx("min-h-screen bg-background antialiased")}>
+        <ClientNavigation />
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
           <main className="relative flex flex-col h-screen w-screen">
-            <ClientNavigation />
             {children}
           </main>
         </Providers>

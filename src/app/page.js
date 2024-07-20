@@ -2,23 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import StreamingAvatar from "../components/StreamingAvatar";
-import StreamingAvatarCode from "../components/StreamingAvatarCode";
-import { Tab, Tabs } from "@nextui-org/react";
 
 export default function Home() {
-  const tabs = [
-    {
-      id: "demo",
-      label: "Demo",
-      content: <StreamingAvatar />,
-    },
-    {
-      id: "code",
-      label: "Code",
-      content: <StreamingAvatarCode />,
-    },
-  ];
 
   return (
     <div className="relative h-screen overflow-hidden">
@@ -61,8 +46,6 @@ export default function Home() {
       <div className="absolute bottom-0 w-full">
         <Image src="/images/mainGray.png" width={1920} height={1080} alt="Main Gray Image" />
       </div>
-
-      
     </div>
   );
 }
