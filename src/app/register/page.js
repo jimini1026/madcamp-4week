@@ -12,13 +12,31 @@ export default function Page() {
     formState: { errors },
   } = useForm();
 
-  const registerSubmit = (data) => {
+  const registerSubmit = async (data) => {
     const { username, email, password, confirmPassword } = data;
     if (password !== confirmPassword) {
       alert("비밀번호가 일치하지 않습니다.");
       return;
+    } else {
+      try {
+        const response = await fetch("/api/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, email, password }),
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          alert(`회원가입 실패: ${errorData.message}`);
+          return;
+        }
+        alert("회원가입 성공!");
+      } catch (error) {
+        console.error("회원가입 중 오류 발생:", error);
+        alert("회원가입 중 오류가 발생했습니다. 다시 시도해주세요.");
+      }
     }
-    console.log(username, email, password, confirmPassword);
   };
 
   return (
