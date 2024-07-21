@@ -4,7 +4,7 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       const { text } = req.body;
-      const apiKey = process.env.GEMINI_API_KEY; // Ensure this is set in your environment variables
+      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY; // Ensure this is set in your environment variables
 
       // Replace with the correct base URL for the Gemini API
       const geminiApiUrl = 'https://api.gemini.example.com/v1/generate-response'; // Update this URL with the actual endpoint
