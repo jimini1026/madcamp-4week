@@ -10,6 +10,8 @@ export default function StreamingAvatar() {
 
   const [isLoadingSession, setIsLoadingSession] = useState(true);
   const [isLoadingRepeat, setIsLoadingRepeat] = useState(false);
+  const [isProcessingGemini, setIsProcessingGemini] = useState(false);
+  const [isAvatarSpeaking, setIsAvatarSpeaking] = useState(false); // New state to manage avatar speaking
   const [stream, setStream] = useState(null);
   const [debug, setDebug] = useState("");
   const [data, setData] = useState(null);
@@ -24,11 +26,18 @@ export default function StreamingAvatar() {
   let currentVoiceId = defaultVoiceId;
 
   const [isRecording, setIsRecording] = useState(false);
-  const mediaRecorderRef = useRef(null);
-  const [audioURL, setAudioURL] = useState('');
+  const [isContinuousRecording, setIsContinuousRecording] = useState(false);
+  const continuousMediaRecorderRef = useRef(null);
+  const [continuousAudioChunks, setContinuousAudioChunks] = useState([]);
+  
+  const [isSegmentedRecording, setIsSegmentedRecording] = useState(false);
+  const segmentedMediaRecorderRef = useRef(null);
+  const [segmentedAudioURL, setSegmentedAudioURL] = useState('');
   const [error, setError] = useState('');
   const [textInput, setTextInput] = useState("");
   const [geminiResponse, setGeminiResponse] = useState("");
+  const [combinedText, setCombinedText] = useState("");
+  const [conversation, setConversation] = useState([]); // To store and display the conversation
 
   async function fetchAccessToken() {
     try {
@@ -90,10 +99,16 @@ export default function StreamingAvatar() {
 
     const startTalkCallback = (e) => {
       console.log("Avatar started talking", e);
+      handleStopRecording(); // Stop recording when avatar starts talking
+      setIsAvatarSpeaking(true); // Update state to indicate avatar is speaking
     };
 
     const stopTalkCallback = (e) => {
       console.log("Avatar stopped talking", e);
+      setIsAvatarSpeaking(false); // Update state to indicate avatar has stopped speaking
+      if (!isProcessingGemini) {
+        handleStartRecording(); // Resume recording when avatar stops talking and not processing Gemini
+      }
     };
 
     avatar.current.addEventHandler("avatar_start_talking", startTalkCallback);
@@ -177,20 +192,53 @@ export default function StreamingAvatar() {
     };
   }, [initialized]);
 
-  const handleStartRecording = async () => {
+  useEffect(() => {
+    let interval;
+    if (isSegmentedRecording && !isAvatarSpeaking) {
+      interval = setInterval(() => {
+        handleStopSegmentedRecording();
+        handleStartSegmentedRecording();
+      }, 3000);
+    }
+    return () => clearInterval(interval);
+  }, [isSegmentedRecording, isAvatarSpeaking]);
+
+  const handleStartContinuousRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      continuousMediaRecorderRef.current = new MediaRecorder(stream);
+      continuousMediaRecorderRef.current.ondataavailable = event => {
+        setContinuousAudioChunks(prev => [...prev, event.data]);
+      };
+      continuousMediaRecorderRef.current.start();
+      setIsContinuousRecording(true);
+    } catch (err) {
+      setError('Failed to start continuous recording');
+    }
+  };
+
+  const handleStopContinuousRecording = () => {
+    if (continuousMediaRecorderRef.current) {
+      continuousMediaRecorderRef.current.stop();
+    }
+    setIsContinuousRecording(false);
+  };
+
+  const handleStartSegmentedRecording = async () => {
+    if (isAvatarSpeaking) return; // Prevent starting recording if avatar is speaking
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      segmentedMediaRecorderRef.current = new MediaRecorder(stream);
       const audioChunks = [];
-      
-      mediaRecorderRef.current.ondataavailable = event => {
+
+      segmentedMediaRecorderRef.current.ondataavailable = event => {
         audioChunks.push(event.data);
       };
 
-      mediaRecorderRef.current.onstop = async () => {
+      segmentedMediaRecorderRef.current.onstop = async () => {
         const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
         const audioUrl = URL.createObjectURL(audioBlob);
-        setAudioURL(audioUrl);
+        setSegmentedAudioURL(audioUrl);
 
         const formData = new FormData();
         formData.append('audio', audioBlob, 'recording.wav');
@@ -209,44 +257,103 @@ export default function StreamingAvatar() {
           if (data.error) {
             setError(data.error);
           } else {
-            await handleTextSubmit(data.transcript); // Send the transcript to Gemini
+            if (!data.transcript) {
+              handleStopContinuousRecording();
+              const continuousAudioBlob = new Blob(continuousAudioChunks, { type: 'audio/wav' });
+              const continuousAudioForm = new FormData();
+              continuousAudioForm.append('audio', continuousAudioBlob, 'continuous_recording.wav');
+
+              const continuousResponse = await fetch('/api/recognize', {
+                method: 'POST',
+                body: continuousAudioForm,
+              });
+
+              if (!continuousResponse.ok) {
+                throw new Error('Network response was not ok');
+              }
+
+              const continuousData = await continuousResponse.json();
+              if (continuousData.error) {
+                setError(continuousData.error);
+              } else {
+                setCombinedText(prev => prev + " " + continuousData.transcript);
+              }
+              setContinuousAudioChunks([]);
+            } else {
+              setCombinedText(prev => prev + " " + data.transcript);
+            }
           }
         } catch (err) {
-          setError('Failed to send audio to server');
+          setError('Failed to send segmented audio to server');
         }
       };
 
-      mediaRecorderRef.current.start();
-      setIsRecording(true);
+      segmentedMediaRecorderRef.current.start();
+      setIsSegmentedRecording(true);
     } catch (err) {
-      setError('Failed to start recording');
+      setError('Failed to start segmented recording');
+    }
+  };
+
+  const handleStopSegmentedRecording = () => {
+    if (segmentedMediaRecorderRef.current) {
+      segmentedMediaRecorderRef.current.stop();
+    }
+  };
+
+  const handleStartRecording = () => {
+    if (!isAvatarSpeaking) {
+      handleStartContinuousRecording();
+      handleStartSegmentedRecording();
+      setIsRecording(true);
     }
   };
 
   const handleStopRecording = () => {
-    mediaRecorderRef.current.stop();
+    handleStopContinuousRecording();
+    handleStopSegmentedRecording();
     setIsRecording(false);
   };
 
-  const handleTextSubmit = async (prompt) => {
+  const handleTextSubmit = async (text) => {
+    const finalText = text || combinedText;
+    if (!finalText.trim()) return;
+
+    setIsProcessingGemini(true);
+    handleStopRecording();
+
     try {
       const model = gemini.getGenerativeModel({ model: "gemini-pro" });
+      const prompt = `${finalText}. Please respond concisely in one or two sentences.`;
       const result = await model.generateContent(prompt, {
         temperature: 0.2,
         presence_penalty: 0.5,
       });
       const response = result.response;
-      const text = await response.text();
+      const generatedText = await response.text();
 
-      if (text) {
-        console.log(text);
-        setGeminiResponse(text);
-        await handleSpeak(text); // Speak the response immediately
+      if (generatedText) {
+        console.log(generatedText);
+        setGeminiResponse(generatedText);
+        setConversation(prev => [...prev, { role: 'user', text: finalText }, { role: 'gemini', text: generatedText }]);
+        await handleSpeak(generatedText);
+        setCombinedText("");
       }
     } catch (error) {
       setDebug(`Error fetching Gemini response: ${error.message}`);
     }
+
+    setIsProcessingGemini(false);
+    if (!isAvatarSpeaking) {
+      handleStartRecording();
+    }
   };
+
+  useEffect(() => {
+    if (combinedText && !isProcessingGemini) {
+      handleTextSubmit();
+    }
+  }, [combinedText, isProcessingGemini]);
 
   return (
     <div className="w-full flex flex-col gap-4">
@@ -299,10 +406,15 @@ export default function StreamingAvatar() {
               {isRecording ? 'Stop Recording' : 'Start Recording'}
             </Button>
           </div>
-          {audioURL && (
+          {segmentedAudioURL && (
             <div className="mt-4">
-              <h2 className="text-xl font-bold mb-2">Recorded Audio:</h2>
-              <audio src={audioURL} controls />
+              <h2 className="text-xl font-bold mb-2">Segmented Recorded Audio:</h2>
+              <audio src={segmentedAudioURL} controls />
+            </div>
+          )}
+          {isRecording && (
+            <div className="text-xl font-bold mb-2 text-red-500">
+              녹음 중 입니다...
             </div>
           )}
           {error && (
@@ -330,6 +442,16 @@ export default function StreamingAvatar() {
               <p>{geminiResponse}</p>
             </div>
           )}
+          <div className="mt-4">
+            <h2 className="text-xl font-bold mb-2">Conversation:</h2>
+            <div className="bg-gray-100 p-4 rounded-lg max-h-96 overflow-y-auto">
+              {conversation.map((msg, index) => (
+                <div key={index} className={`mb-2 ${msg.role === 'user' ? 'text-blue-500' : 'text-green-500'}`}>
+                  <strong>{msg.role === 'user' ? 'User' : 'Gemini'}:</strong> {msg.text}
+                </div>
+              ))}
+            </div>
+          </div>
         </CardFooter>
       </Card>
       <p className="font-mono text-right">
