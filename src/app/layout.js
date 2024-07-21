@@ -1,8 +1,10 @@
+import { useContext } from "react";
 import { Inter, Fira_Code as FontMono } from "next/font/google";
 import "./globals.css";
 import clsx from "clsx";
 import { Providers } from "./providers";
-import ClientNavigation from "./clientNavigation";
+import AppProvider from "./appProvider";
+import Navigation from "./navigation";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const fontMono = FontMono({
@@ -42,10 +44,12 @@ export default function RootLayout({ children }) {
         <link rel="icon" href={metadata.icons.icon} />
       </head>
       <body className={inter.className}>
-        <ClientNavigation />
-        <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
-          {children}
-        </Providers>
+        <AppProvider>
+          <Navigation />
+          <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
+            {children}
+          </Providers>
+        </AppProvider>
       </body>
     </html>
   );

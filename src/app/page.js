@@ -2,8 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useContext, useEffect } from "react";
+import { Context } from "./appProvider";
 
 export default function Home() {
+  const { state, setState } = useContext(Context);
+
   return (
     <div className="relative h-screen overflow-hidden">
       <div className="absolute top-[-2rem] w-full -z-10">
@@ -21,7 +25,11 @@ export default function Home() {
           <hr className="color-white mt-3" />
         </div>
         <div className="text-white text-3xl font-bold pt-9 pl-44">
-          <Link href="/login">Join the site {">>"}</Link>
+          {state.username ? (
+            <div>Hello {state.username}!</div>
+          ) : (
+            <Link href="/login">Join the site {">>"}</Link>
+          )}
         </div>
       </div>
       <div className="absolute right-[20rem] top-[24rem]">
