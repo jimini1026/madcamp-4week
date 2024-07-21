@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default function StreamingAvatar() {
-  const gemini = new GoogleGenerativeAI("AIzaSyDpk9XhKNa4ICbXDNHvyBpc-VvmkMHGm5Y");
+  const gemini = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY);
 
   const [isLoadingSession, setIsLoadingSession] = useState(true);
   const [isLoadingRepeat, setIsLoadingRepeat] = useState(false);
