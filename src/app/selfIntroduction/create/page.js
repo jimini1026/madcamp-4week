@@ -10,7 +10,7 @@ import Link from "next/link";
 
 export default function Create() {
   const gemini = new GoogleGenerativeAI(
-    "AIzaSyDpk9XhKNa4ICbXDNHvyBpc-VvmkMHGm5Y"
+    "api"
   );
 
   const [generatedEssay, setGeneratedEssay] = useState("");
