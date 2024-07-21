@@ -2,14 +2,19 @@
 
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { Context } from "../appProvider";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
+  const { state, setState } = useContext(Context);
+
   const [loginInfo, setLoginInfo] = useState({
     email: "",
     password: "",
   });
   const [visible, setVisible] = useState(false);
+  const router = useRouter();
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -24,6 +29,10 @@ export default function Login() {
       if (loginInfo.email === data.email) {
         if (loginInfo.password === data.password) {
           alert("로그인 성공");
+          setState({ username: data.username, email: data.email });
+          sessionStorage.setItem("username", data.username);
+          sessionStorage.setItem("email", data.email);
+          router.push("/");
         } else {
           alert("비밀번호가 일치하지 않습니다.");
         }
