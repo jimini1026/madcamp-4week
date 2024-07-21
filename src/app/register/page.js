@@ -22,7 +22,7 @@ export default function Page() {
   };
 
   return (
-    <div className="h-full flex justify-center items-center">
+    <div className="h-full flex justify-center items-center mt-10">
       <div className="flex mb-14">
         <div className="bg-customBlue backdrop-blur-lg bg-opacity-80 rounded-l-lg shadow-2xl py-5 px-10">
           <div className="text-white text-[2rem] font-bold text-center mb-[-2rem]">

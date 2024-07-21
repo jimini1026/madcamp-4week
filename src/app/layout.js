@@ -5,7 +5,10 @@ import { Providers } from "./providers";
 import ClientNavigation from "./clientNavigation";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-const fontMono = FontMono({ subsets: ["latin"], variable: "--font-geist-mono" });
+const fontMono = FontMono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
+});
 
 export default function RootLayout({ children }) {
   return (
@@ -17,12 +20,10 @@ export default function RootLayout({ children }) {
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
-      <body className={clsx("min-h-screen bg-background antialiased")}>
+      <body className={inter.className}>
         <ClientNavigation />
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
-          <main className="relative flex flex-col h-screen w-screen">
-            {children}
-          </main>
+          {children}
         </Providers>
       </body>
     </html>
