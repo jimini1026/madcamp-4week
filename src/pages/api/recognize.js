@@ -20,8 +20,14 @@ export default async function handler(req, res) {
 
     console.log('Parsed files:', files);
 
-    // 파일 경로가 배열의 첫 번째 요소로 전달됨
-    const filePath = files.audio[0].filepath;
+    const file = files.audio;
+    const filePath = Array.isArray(file) ? file[0].filepath : file.filepath;
+
+    if (!filePath) {
+      console.error('File path is not defined');
+      res.status(500).json({ error: 'File path is not defined' });
+      return;
+    }
 
     try {
       const audioFile = fs.readFileSync(filePath);
