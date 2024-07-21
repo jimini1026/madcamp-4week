@@ -5,11 +5,15 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import Image from "next/image";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import exampleEssays from "./exampleEssay";
+import Link from "next/link";
 
 export default function Create() {
   const gemini = new GoogleGenerativeAI(
     "api"
   );
+
+  const [generatedEssay, setGeneratedEssay] = useState("");
 
   const {
     register,
@@ -20,9 +24,28 @@ export default function Create() {
 
   const [shrinkBlue, setShrinkBlue] = useState(false);
 
-  const registerAnswer = (data) => {
+  const registerAnswer = async (data) => {
     const { title, university, major, club, reading } = data;
     console.log(title, university, major, club, reading);
+
+    const prompt = `
+    고등학교 재학 기간 중 자신의 진로와 관련하여 어떤 노력을 해왔는지 본인에게 의미 있는 학습 경험과 교내
+    활동을 중심으로 기술해 주시기 바랍니다.
+    ${university} ${major}에 지원하고 싶어서 자소서를 쓰려고 합니다.
+    이 대학교에서 원하는 인재상에 부합하게 자소서를 작성해주세요.
+    나는 고등학교에서 동아리활동으로 ${club}를 했고,
+    독서활동으로는 ${reading}을 읽었습니다.
+    이를 바탕으로 자소서를 작성해주세요.
+    반드시 다음 지침을 따라주세요:
+    1. 공백 포함 1000자 이상 1500자 이하로 작성할 것
+    2. 특수문자나 기호(예: *, -, #)를 사용하지 말 것
+    3. 문단 구분 없이 연속된 텍스트로 작성할 것
+    4. 예의 있게 작성할 것
+      예시: ${exampleEssays.join(" ")}
+    `;
+
+    const answer = await chat(prompt);
+    setGeneratedEssay(answer);
   };
 
   const enterKey = (event) => {
@@ -36,31 +59,21 @@ export default function Create() {
   const chat = async (prompt) => {
     try {
       const model = gemini.getGenerativeModel({ model: "gemini-pro" });
-      const result = await model.generateContent(prompt);
+      const result = await model.generateContent(prompt, {
+        temperature: 0.2,
+        presence_penalty: 0.5,
+      });
       const response = result.response;
       const text = await response.text();
 
       if (text) {
         console.log(text);
-        return 200;
+        return text;
       }
     } catch (error) {
       console.error(error);
     }
   };
-
-  useEffect(() => {
-    chat(
-      `
-      부산대학교 컴퓨터공학과에 지원하고 싶어서 자소서를 쓰려고 해. 
-      이 대학교에서 원하는 인재상을 찾아서 자소서를 작성해줘.
-      나는 고등학교에서 동아리활동으로 AI를 이용하여 자율주행자동차를 만드는 활동을 하였고, 
-      독서활동으로는 AI 혁명의 미래라는 책을 읽었어. 
-      이를 바탕으로 자소서를 1000자 이상 작성해줘
-      대답은 엔터 없이 작성해주고 마크다운 표시도 다 빼줘
-      `
-    );
-  }, []);
 
   return (
     <div className="flex min-h-screen">
@@ -121,15 +134,30 @@ export default function Create() {
         {shrinkBlue && (
           <>
             <div className="font-bold text-3xl mb-2 text-white">
-              After Creating...
+              {generatedEssay ? (
+                "After Creating..."
+              ) : (
+                <div className="pr-[5rem]">Creating...</div>
+              )}
             </div>
             <div className="font-semibold pr-16">
-              <div>자소서가 생성되었습니다</div>
-              <div>저장 이후 수정해주세요</div>
+              <div>
+                {generatedEssay
+                  ? "자소서가 생성되었습니다"
+                  : "자소서를 생성 중입니다."}
+              </div>
+              <div>
+                {generatedEssay
+                  ? "저장 이후 수정해주세요"
+                  : "잠시만 기다려주세요"}
+              </div>
             </div>
-            <div></div>
             <Image
-              src="/images/createDone.png"
+              src={
+                generatedEssay
+                  ? "/images/createDone.png"
+                  : "/images/creating.png"
+              }
               width={350}
               height={350}
               alt="create_image"
@@ -159,9 +187,34 @@ export default function Create() {
           </>
         )}
         {shrinkBlue && (
-          <div className="flex flex-col items-center justify-center">
-            <div className="font-bold text-xl">생성된 자소서</div>
-            <div className="border rounded-lg w-[40rem] h-[30rem] shadow-lg"></div>
+          <div className="flex flex-col items-center justify-center relative">
+            <div className="flex mb-2">
+              <div className="font-bold text-xl pr-[19rem]">생성된 자소서</div>
+              <div className="flex gap-2">
+                <button className="bg-customBlue font-semibold text-white px-5 rounded-lg">
+                  <Link href={"/selfIntroduction"}>Save</Link>
+                </button>
+                <button className="bg-customGray font-semibold rounded-lg px-3">
+                  <Link href={"/selfIntroduction"}>Delete</Link>
+                </button>
+              </div>
+            </div>
+            <div className="border rounded-lg w-[40rem] h-[30rem] shadow-lg px-10 py-5 flex jusitfy-center items-center overflow-y-auto">
+              <div className="w-full h-full flex justify-center items-center">
+                {generatedEssay ? (
+                  <div className="max-h-full w-full">{generatedEssay}</div>
+                ) : (
+                  <div className="max-h-full flex items-center justify-center">
+                    <Image
+                      src="/assets/spinner.gif"
+                      alt="loading"
+                      width={200}
+                      height={200}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>
