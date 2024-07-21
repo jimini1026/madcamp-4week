@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
-
   return (
     <div className="relative h-screen overflow-hidden">
       <div className="absolute top-[-2rem] w-full -z-10">
@@ -44,7 +43,12 @@ export default function Home() {
         />
       </div>
       <div className="absolute bottom-0 w-full">
-        <Image src="/images/mainGray.png" width={1920} height={1080} alt="Main Gray Image" />
+        <Image
+          src="/images/mainGray.png"
+          width={1920}
+          height={1080}
+          alt="Main Gray Image"
+        />
       </div>
     </div>
   );

@@ -11,16 +11,33 @@ export default function Login() {
   });
   const [visible, setVisible] = useState(false);
 
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(
+        `/api/getUsersData?email=${encodeURIComponent(loginInfo.email)}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
+      const data = await response.json();
+      if (loginInfo.email === data.email) {
+        if (loginInfo.password === data.password) {
+          alert("로그인 성공");
+        } else {
+          alert("비밀번호가 일치하지 않습니다.");
+        }
+      }
+    } catch (error) {
+      alert("유효하지 않은 이메일입니다.");
+      console.error("Error fetching user data:", error);
+    }
+  };
+
   return (
     <div className="h-screen flex items-center justify-center">
       <div className="mb-20">
-        <form
-          className="w-96"
-          onSubmit={(e) => {
-            e.preventDefault();
-            console.log(loginInfo);
-          }}
-        >
+        <form className="w-96" onSubmit={handleLoginSubmit}>
           <h1 className="m-3 mb-10 text-center text-5xl font-bold text-customBlue">
             Daesi
           </h1>
