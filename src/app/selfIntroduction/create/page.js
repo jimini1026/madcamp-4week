@@ -40,15 +40,18 @@ export default function Create() {
     ${university} ${major}에 지원하고 싶어서 자소서를 쓰려고 합니다.
     나는 고등학교에서 동아리활동으로 ${club},
     독서활동으로는 ${reading}.
-    반드시 다음 지침을 따라주세요:
-    1. 공백 포함 1000자 이상 1500자 이하로 작성할 것
-    2. 접속사를 이용하여 자연스럽게 흐름이 이어지도록 할 것
-    3. 예의 있게 작성할 것
-    4. 고등학교 재학 기간 중 자신의 진로와 관련하여 어떤 노력을 해왔는지 본인에게 의미 있는 학습 경험과 교내
+
+    1. 고등학교 재학 기간 중 자신의 진로와 관련하여 어떤 노력을 해왔는지 본인에게 의미 있는 학습 경험과 교내
     활동을 중심으로 기술해 주시기 바랍니다.
-    5. 첫문장 쓰지 마라
-    6. 대학교 칭찬 금지
-    예시: ${exampleEssays.join(" ")}
+    2. 특수기호 금지
+    3. 첫문장에는 대학교 지원 동기로 시작, 이후에 동아리 활동과 자신의 느낀점, 독서 활동 순으로 작성
+    4. 예의 바르고 차분한 느낌으로 한글로 작성할 것
+    5. 공백 포함 1000자 이상 1500자 이하로 작성할 것
+    6. 접속사를 이용하여 자연스럽게 흐름이 이어지도록 할 것
+    7. 대학교 언급 금지
+    8. 문단은 엔터키로 구분 해줘
+
+    내용을 직접 겪은 것 처럼 과정을 자세히 작성해라
       `;
     setGeneratedEssay("");
 
@@ -247,7 +250,7 @@ export default function Create() {
               </div>
             </div>
             <div className="border rounded-lg w-[40rem] h-[30rem] shadow-lg px-10 py-5 flex jusitfy-center items-center overflow-y-auto">
-              <div className="w-full h-full flex justify-center items-center">
+              <div className="w-full h-full flex justify-center items-center whitespace-pre-wrap">
                 {generatedEssay ? (
                   <div className="max-h-full w-full">{generatedEssay}</div>
                 ) : (

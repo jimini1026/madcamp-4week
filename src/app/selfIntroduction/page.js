@@ -63,7 +63,11 @@ export default function SelfIntroduction() {
       <div className="border rounded-xl py-5 px-10 flex items-center relative w-full">
         <div className="font-bold text-lg">{title}</div>
         <div className="bg-customBlue text-white rounded-lg px-6 py-1 text-sm absolute right-32 cursor-pointer">
-          <Link href="/selfIntroduction/edit">edit</Link>
+          <Link
+            href={`/selfIntroduction/edit?title=${encodeURIComponent(title)}`}
+          >
+            edit
+          </Link>
         </div>
         <div
           className="bg-customGray text-white rounded-lg px-3 py-1 text-sm absolute right-10 cursor-pointer"
@@ -114,6 +118,7 @@ export default function SelfIntroduction() {
                   현재 저장된 자소서가 존재하지 않습니다.
                 </div>
                 <Image
+                  alt="noData"
                   src={"/images/noData.png"}
                   className="mt-[-6rem]"
                   width={550}
