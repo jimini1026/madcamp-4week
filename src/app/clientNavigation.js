@@ -3,8 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { useContext } from "react";
+import { Context } from "./appProvider";
 
 export default function ClientNavigation() {
+  const { state } = useContext(Context);
   const pathname = usePathname();
 
   return (
@@ -51,7 +54,9 @@ export default function ClientNavigation() {
             height={25}
           />
         </div>
-        <div className="font-bold text-center text-customGray">임지민</div>
+        <div className="font-bold text-center text-customGray">
+          {state.username}
+        </div>
       </Link>
     </div>
   );
