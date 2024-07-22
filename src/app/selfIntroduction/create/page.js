@@ -1,17 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import Image from "next/image";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import exampleEssays from "./exampleEssay";
 import Link from "next/link";
+import { Context } from "../../appProvider";
+import { MdDeleteOutline } from "react-icons/md";
+import { TbReload } from "react-icons/tb";
+import { MdOutlineSaveAlt } from "react-icons/md";
+import { useRouter } from "next/navigation";
 
 export default function Create() {
+  const { state, setState } = useContext(Context);
   const gemini = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY);
 
   const [generatedEssay, setGeneratedEssay] = useState("");
+  const [title, setTitle] = useState("");
+  const router = useRouter();
 
   const {
     register,
@@ -24,26 +32,55 @@ export default function Create() {
 
   const registerAnswer = async (data) => {
     const { title, university, major, club, reading } = data;
+    setTitle(title);
     console.log(title, university, major, club, reading);
 
     const prompt = `
-    고등학교 재학 기간 중 자신의 진로와 관련하여 어떤 노력을 해왔는지 본인에게 의미 있는 학습 경험과 교내
-    활동을 중심으로 기술해 주시기 바랍니다.
+    당신은 입시를 위하여 대학교에 제출할 자소서를 작성하는 학생입니다.
     ${university} ${major}에 지원하고 싶어서 자소서를 쓰려고 합니다.
-    이 대학교에서 원하는 인재상에 부합하게 자소서를 작성해주세요.
-    나는 고등학교에서 동아리활동으로 ${club}를 했고,
-    독서활동으로는 ${reading}을 읽었습니다.
-    이를 바탕으로 자소서를 작성해주세요.
+    나는 고등학교에서 동아리활동으로 ${club},
+    독서활동으로는 ${reading}.
     반드시 다음 지침을 따라주세요:
     1. 공백 포함 1000자 이상 1500자 이하로 작성할 것
-    2. 특수문자나 기호(예: *, -, #)를 사용하지 말 것
-    3. 문단 구분 없이 연속된 텍스트로 작성할 것
-    4. 예의 있게 작성할 것
-      예시: ${exampleEssays.join(" ")}
-    `;
+    2. 접속사를 이용하여 자연스럽게 흐름이 이어지도록 할 것
+    3. 예의 있게 작성할 것
+    4. 고등학교 재학 기간 중 자신의 진로와 관련하여 어떤 노력을 해왔는지 본인에게 의미 있는 학습 경험과 교내
+    활동을 중심으로 기술해 주시기 바랍니다.
+    5. 첫문장 쓰지 마라
+    6. 대학교 칭찬 금지
+    예시: ${exampleEssays.join(" ")}
+      `;
+    setGeneratedEssay("");
 
     const answer = await chat(prompt);
     setGeneratedEssay(answer);
+  };
+
+  const handleSubmitSelfIntroduction = async () => {
+    console.log(generatedEssay);
+    try {
+      const response = await fetch("/api/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: state.email,
+          title,
+          content: generatedEssay,
+        }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(`저장 실패: ${errorData.message}`);
+        return;
+      }
+      alert("자소서가 저장되었습니다.");
+      router.push("/selfIntroduction");
+    } catch (error) {
+      console.error("Failed to save selfIntroduction", error);
+      alert("자소서 저장에 실패하였습니다.");
+    }
   };
 
   const enterKey = (event) => {
@@ -175,7 +212,6 @@ export default function Create() {
               <div>AI를 통해 자소서를 생성하기 전</div>
               <div>질문의 답을 작성해주세요</div>
             </div>
-            <div></div>
             <Image
               src="/images/create.png"
               width={350}
@@ -187,13 +223,26 @@ export default function Create() {
         {shrinkBlue && (
           <div className="flex flex-col items-center justify-center relative">
             <div className="flex mb-2">
-              <div className="font-bold text-xl pr-[19rem]">생성된 자소서</div>
-              <div className="flex gap-2">
-                <button className="bg-customBlue font-semibold text-white px-5 rounded-lg">
-                  <Link href={"/selfIntroduction"}>Save</Link>
+              <div className="font-bold mt-5 text-xl pr-[19rem] pl-[5rem]">
+                생성된 자소서
+              </div>
+              <div className="flex gap-2 border p-3 rounded-lg mr-16">
+                <button
+                  className="bg-customBlue font-semibold text-white px-5 rounded-lg"
+                  onClick={handleSubmit(registerAnswer)}
+                >
+                  <TbReload />
+                </button>
+                <button
+                  className="bg-customBlue font-semibold text-white px-5 rounded-lg"
+                  onClick={handleSubmitSelfIntroduction}
+                >
+                  <MdOutlineSaveAlt />
                 </button>
                 <button className="bg-customGray font-semibold rounded-lg px-3">
-                  <Link href={"/selfIntroduction"}>Delete</Link>
+                  <Link href={"/selfIntroduction"}>
+                    <MdDeleteOutline />
+                  </Link>
                 </button>
               </div>
             </div>
