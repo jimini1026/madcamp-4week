@@ -1,27 +1,78 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
+import { Context } from "../appProvider";
+import Image from "next/image";
 
 export default function SelfIntroduction() {
-  useEffect(() => {
-    // SelfIntroduction 페이지에 진입할 때 overflow-auto 설정
-    document.body.style.overflow = "auto";
+  const { state, setState } = useContext(Context);
+  const [selfIntroductionData, setSelfIntroductionData] = useState([]);
 
-    // 페이지를 벗어날 때 overflow-hidden으로 되돌림
-    return () => {
-      document.body.style.overflow = "hidden";
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          `/api/getUserSelfIntroduction?email=${encodeURIComponent(
+            state.email
+          )}`
+        );
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        setSelfIntroductionData(data);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      }
     };
-  }, []);
+
+    fetchData();
+    // // SelfIntroduction 페이지에 진입할 때 overflow-auto 설정
+    // document.body.style.overflow = "auto";
+    // // 페이지를 벗어날 때 overflow-hidden으로 되돌림
+    // return () => {
+    //   document.body.style.overflow = "hidden";
+    // };
+  }, [state.email]);
+
+  const handleDeleteSelfIntroduction = async (title) => {
+    try {
+      const response = await fetch(
+        `/api/deleteSelfIntroduction?email=${encodeURIComponent(
+          state.email
+        )}&title=${encodeURIComponent(title)}`,
+        { method: "DELETE" }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete self-introduction");
+      }
+
+      // 삭제 후 성공적으로 데이터를 갱신합니다.
+      setSelfIntroductionData((prevData) =>
+        prevData.filter((item) => item.title !== title)
+      );
+    } catch (error) {
+      console.error("Failed to delete self-introduction:", error);
+    }
+  };
 
   const SelfIntroductionList = ({ title }) => {
     return (
-      <div className="border rounded-xl py-5 px-10 flex items-center relative">
+      <div className="border rounded-xl py-5 px-10 flex items-center relative w-full">
         <div className="font-bold text-lg">{title}</div>
         <div className="bg-customBlue text-white rounded-lg px-6 py-1 text-sm absolute right-32 cursor-pointer">
-          edit
+          <Link
+            href={`/selfIntroduction/edit?title=${encodeURIComponent(title)}`}
+          >
+            edit
+          </Link>
         </div>
-        <div className="bg-customGray text-white rounded-lg px-3 py-1 text-sm absolute right-10 cursor-pointer">
+        <div
+          className="bg-customGray text-white rounded-lg px-3 py-1 text-sm absolute right-10 cursor-pointer"
+          onClick={() => handleDeleteSelfIntroduction(title)}
+        >
           delete
         </div>
       </div>
@@ -50,19 +101,31 @@ export default function SelfIntroduction() {
           </div>
         </div>
         <hr className="mx-20" />
-        <div className="bg-white px-24 pt-5 pb-10 rounded-b-xl flex flex-col">
-          <div className="font-semibold px-10 pb-3">Title</div>
-          <div className="flex flex-col gap-4">
-            <SelfIntroductionList title="자기소개서1" />
-            <SelfIntroductionList title="자기소개서2" />
-            <SelfIntroductionList title="자기소개서3" />
-            <SelfIntroductionList title="자기소개서4" />
-            <SelfIntroductionList title="자기소개서5" />
-            <SelfIntroductionList title="자기소개서6" />
-            <SelfIntroductionList title="자기소개서7" />
-            <SelfIntroductionList title="자기소개서8" />
-            <SelfIntroductionList title="자기소개서9" />
-            <SelfIntroductionList title="자기소개서10" />
+        <div className="bg-white px-24 pt-5 pb-10 rounded-b-xl flex flex-col min-h-screen">
+          <div className="font-semibold px-10 pb-3">
+            {selfIntroductionData.length ? "Title" : null}
+          </div>
+          <div className="flex flex-col gap-4 items-center">
+            {selfIntroductionData.length ? (
+              selfIntroductionData.map((data) => {
+                return (
+                  <SelfIntroductionList key={data.title} title={data.title} />
+                );
+              })
+            ) : (
+              <div className="flex justify-center items-center flex-col text-[1.3rem] pt-28">
+                <div className="text-customGray font-bold">
+                  현재 저장된 자소서가 존재하지 않습니다.
+                </div>
+                <Image
+                  alt="noData"
+                  src={"/images/noData.png"}
+                  className="mt-[-6rem]"
+                  width={550}
+                  height={550}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
