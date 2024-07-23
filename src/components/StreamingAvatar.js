@@ -189,17 +189,6 @@ export default function StreamingAvatar() {
         {interviewCompleted ? (
           <>
             <h2 className="text-xl font-bold mb-2">면접이 종료되었습니다</h2>
-            <h2 className="text-xl font-bold mb-2">Interview Summary:</h2>
-            {questionsAndAnswers.map((qa, index) => (
-              <div key={index} className="mb-4">
-                <p>
-                  <strong>Question {index + 1}:</strong> {qa.question}
-                </p>
-                <p>
-                  <strong>Answer:</strong> {qa.answer}
-                </p>
-              </div>
-            ))}
           </>
         ) : (
           <div className="mb-4">
