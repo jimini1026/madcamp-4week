@@ -51,7 +51,7 @@ export default function Create() {
     최근 지원하는 회사의 지원하는 부문의 이슈에 대해서도 구체적으로 언급하며 자신의 생각과 관심을 어필해 주세요.
     회사 지원 자소서의 예시 답변을 참고하여 자소서를 작성해 주세요.
     내용마다 자신의 작성 근거 또는 에피소드의 내용을 자세히 설명해 주세요
-    답변은 순서에 상관없이 자연스럽게 연결해주세요
+    답변은 순서에 상관없이 자연스럽게 내용을 연결해주세요
     질문에 대한 답변 내용은 필수적으로 들어가야 합니다.
     
     아래의 예시 형식으로 작성해 주세요:
@@ -97,7 +97,7 @@ export default function Create() {
     if (event.keyCode === 13) {
       event.preventDefault();
       handleSubmit(registerAnswer)();
-      setShrinkBlue(true); // 엔터 키를 누르면 파란 바탕이 줄어들도록 설정
+      setShrinkBlue(true);
     }
   };
 
