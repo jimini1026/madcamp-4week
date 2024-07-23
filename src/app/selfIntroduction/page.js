@@ -4,10 +4,13 @@ import Link from "next/link";
 import { useContext, useEffect, useState } from "react";
 import { Context } from "../appProvider";
 import Image from "next/image";
+import { FaSearch } from "react-icons/fa";
 
 export default function SelfIntroduction() {
   const { state, setState } = useContext(Context);
   const [selfIntroductionData, setSelfIntroductionData] = useState([]);
+  const [searchInput, setSearchInput] = useState("");
+  const [filteredData, setFilteredData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,18 +25,13 @@ export default function SelfIntroduction() {
         }
         const data = await response.json();
         setSelfIntroductionData(data);
+        setFilteredData(data);
       } catch (error) {
         console.error("Failed to fetch data:", error);
       }
     };
 
     fetchData();
-    // // SelfIntroduction 페이지에 진입할 때 overflow-auto 설정
-    // document.body.style.overflow = "auto";
-    // // 페이지를 벗어날 때 overflow-hidden으로 되돌림
-    // return () => {
-    //   document.body.style.overflow = "hidden";
-    // };
   }, [state.email]);
 
   const handleDeleteSelfIntroduction = async (title) => {
@@ -53,28 +51,44 @@ export default function SelfIntroduction() {
       setSelfIntroductionData((prevData) =>
         prevData.filter((item) => item.title !== title)
       );
+      setFilteredData((prevData) =>
+        prevData.filter((item) => item.title !== title)
+      );
     } catch (error) {
       console.error("Failed to delete self-introduction:", error);
+    }
+  };
+
+  const handleSearch = () => {
+    const filtered = selfIntroductionData.filter((item) =>
+      item.title.toLowerCase().includes(searchInput.toLowerCase())
+    );
+    setFilteredData(filtered);
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      handleSearch();
     }
   };
 
   const SelfIntroductionList = ({ title }) => {
     return (
       <div className="border rounded-xl py-5 px-10 flex items-center relative w-full">
-        <div className="font-bold text-lg">{title}</div>
-        <div className="pb-7">
+        <div className="font-bold text-lg flex-1">{title}</div>
+        <div className="absolute right-0 top-0 h-full flex">
           <Link
-            className="bg-customBlue text-white rounded-lg px-6 py-1 text-sm absolute right-32 cursor-pointer"
+            className="bg-customBlue text-white px-7 py-6 text-sm flex items-center justify-center cursor-pointer h-full"
             href={`/selfIntroduction/edit?title=${encodeURIComponent(title)}`}
           >
             edit
           </Link>
-        </div>
-        <div
-          className="bg-customGray text-white rounded-lg px-3 py-1 text-sm absolute right-10 cursor-pointer"
-          onClick={() => handleDeleteSelfIntroduction(title)}
-        >
-          delete
+          <div
+            className="bg-customGray text-white rounded-r-lg px-5 py-6 text-sm flex items-center justify-center cursor-pointer h-full"
+            onClick={() => handleDeleteSelfIntroduction(title)}
+          >
+            delete
+          </div>
         </div>
       </div>
     );
@@ -90,8 +104,17 @@ export default function SelfIntroduction() {
           <input
             placeholder="search your list..."
             className="border rounded-lg pr-28 h-10 w-[25rem] px-5 ml-[15rem]"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
-          <button className="absolute right-[20rem]">Search</button>
+          <div
+            className="absolute right-[19.5rem] cursor-pointer p-2 rounded-full"
+            style={{ backgroundColor: "#E9E9E9" }}
+            onClick={handleSearch}
+          >
+            <FaSearch />
+          </div>
           <Link
             href="/selfIntroduction/create"
             className="text-white font-semibold px-4 py-2 bg-customBlue rounded-lg ml-[6.5rem]"
@@ -102,11 +125,11 @@ export default function SelfIntroduction() {
         <hr className="mx-20" />
         <div className="bg-white px-24 pt-5 pb-10 rounded-b-xl flex flex-col min-h-screen">
           <div className="font-semibold px-10 pb-3">
-            {selfIntroductionData.length ? "Title" : null}
+            {filteredData.length ? "Title" : null}
           </div>
           <div className="flex flex-col gap-4 items-center">
-            {selfIntroductionData.length ? (
-              selfIntroductionData.map((data) => {
+            {filteredData.length ? (
+              filteredData.map((data) => {
                 return (
                   <SelfIntroductionList key={data.title} title={data.title} />
                 );
