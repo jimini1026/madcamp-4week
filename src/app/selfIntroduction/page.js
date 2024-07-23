@@ -92,14 +92,12 @@ export default function SelfIntroduction() {
             className="border rounded-lg pr-28 h-10 w-[25rem] px-5 ml-[15rem]"
           />
           <button className="absolute right-[20rem]">Search</button>
-          <div className="bg-customBlue rounded-lg px-4 py-2 ml-[6.5rem]">
-            <Link
-              href="/selfIntroduction/create"
-              className="text-white font-semibold"
-            >
-              새로 작성
-            </Link>
-          </div>
+          <Link
+            href="/selfIntroduction/create"
+            className="text-white font-semibold px-4 py-2 bg-customBlue rounded-lg ml-[6.5rem]"
+          >
+            새로 작성
+          </Link>
         </div>
         <hr className="mx-20" />
         <div className="bg-white px-24 pt-5 pb-10 rounded-b-xl flex flex-col min-h-screen">
