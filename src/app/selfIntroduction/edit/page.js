@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { Context } from "../../appProvider";
 import { useRouter } from "next/navigation";
-import { FaAngleDown } from "react-icons/fa6";
+import HighlightWithinTextarea from "react-highlight-within-textarea";
 
 export default function Edit() {
   const { state } = useContext(Context);
@@ -14,6 +14,7 @@ export default function Edit() {
   const [charCountWithSpaces, setCharCountWithSpaces] = useState(0);
   const [charCountWithoutSpaces, setCharCountWithoutSpaces] = useState(0);
   const [spellingCheckData, setSpellingCheckData] = useState([]);
+  const [highlight, setHightlight] = useState();
   const router = useRouter();
 
   useEffect(() => {
@@ -45,11 +46,10 @@ export default function Edit() {
     handleSpellCheck();
   }, [selfIntroductionData]);
 
-  const handleTextChange = (e) => {
-    const newText = e.target.value;
-    setSelfIntroductionData(newText);
-    setCharCountWithSpaces(newText.length);
-    setCharCountWithoutSpaces(newText.replace(/\s/g, "").length);
+  const handleTextChange = (text) => {
+    setSelfIntroductionData(text);
+    setCharCountWithSpaces(text.length);
+    setCharCountWithoutSpaces(text.replace(/\s/g, "").length);
   };
 
   const handleSpellCheck = async () => {
@@ -65,6 +65,12 @@ export default function Edit() {
       const data = await response.json();
       console.log(data.results);
       setSpellingCheckData(data.results || []);
+      setHightlight(
+        data.results.map((result) => ({
+          highlight: result.token,
+          className: "red",
+        }))
+      );
     } catch (error) {
       console.error("Spell check failed:", error);
     }
@@ -138,14 +144,23 @@ export default function Edit() {
             <div className="font-semibold px-5">내용 입력</div>
           </div>
           <div className="border rounded-bl-lg h-[30rem] flex flex-col">
-            <textarea
-              spellCheck="false"
-              className="w-full h-full border-none outline-none py-5 px-3"
-              onChange={handleTextChange}
-              value={selfIntroductionData}
-            />
+            <div className="overflow-y-auto py-5 px-5">
+              <HighlightWithinTextarea
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  border: "none",
+                  outline: "none",
+                  padding: "1.25rem 0.75rem",
+                }}
+                spellCheck="false"
+                onChange={handleTextChange}
+                value={selfIntroductionData}
+                highlight={highlight}
+              />
+            </div>
             <div className="py-3 flex justify-center items-center gap-5 border-t relative">
-              <div className="absolute left-4">
+              <div className="absolute left-4 font-semibold">
                 <div className="text-sm">
                   글자 수 {"(공백 제외)"} : {charCountWithoutSpaces}
                 </div>
