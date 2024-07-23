@@ -14,7 +14,7 @@ export default function Edit() {
   const [charCountWithSpaces, setCharCountWithSpaces] = useState(0);
   const [charCountWithoutSpaces, setCharCountWithoutSpaces] = useState(0);
   const [spellingCheckData, setSpellingCheckData] = useState([]);
-  const [highlight, setHightlight] = useState();
+  const [highlight, setHightlight] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -76,6 +76,16 @@ export default function Edit() {
     }
   };
 
+  const handleEdit = () => {
+    let updatedText = selfIntroductionData;
+    spellingCheckData.forEach(({ token, suggestions }) => {
+      const suggestion = suggestions[0]; // 첫 번째 제안을 사용
+      const regex = new RegExp(token, "g");
+      updatedText = updatedText.replace(regex, suggestion);
+    });
+    setSelfIntroductionData(updatedText);
+  };
+
   const handleSave = async () => {
     try {
       // Update existing self-introduction
@@ -106,7 +116,7 @@ export default function Edit() {
   const SpellCheckTag = ({ data }) => {
     return (
       <div className="border-b">
-        <div className=" py-3 flex">
+        <div className="py-3 flex">
           <div className="flex items-center gap-5 ml-10">
             <div className="text-red-600 font-semibold">{data.token}</div>
             <div>{"->"}</div>
@@ -114,7 +124,7 @@ export default function Edit() {
               style={{ backgroundColor: "#00B6FF" }}
               className="rounded-lg font-semibold px-2 py-1"
             >
-              {data.suggestions}
+              {data.suggestions[0]}
             </div>
           </div>
         </div>
@@ -193,13 +203,20 @@ export default function Edit() {
           </div>
           <div className="border rounded-br-lg h-[30rem]">
             <div className="overflow-y-auto h-[26.1rem]">
-              {spellingCheckData.length != 0
+              {spellingCheckData.length !== 0
                 ? spellingCheckData.map((data, index) => (
                     <SpellCheckTag key={index} data={data} />
                   ))
                 : null}
             </div>
-            <div className="border-t">Edit</div>
+            <div className="border-t flex items-center justify-center pt-3">
+              <button
+                className="bg-customBlue text-white text-lg rounded-lg px-5 py-1 font-bold"
+                onClick={handleEdit}
+              >
+                Edit All
+              </button>
+            </div>
           </div>
         </div>
       </div>
