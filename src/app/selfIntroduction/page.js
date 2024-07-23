@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useContext, useEffect, useState } from "react";
 import { Context } from "../appProvider";
 import Image from "next/image";
+import { FaSearch } from "react-icons/fa";
 
 export default function SelfIntroduction() {
   const { state, setState } = useContext(Context);
@@ -28,12 +29,6 @@ export default function SelfIntroduction() {
     };
 
     fetchData();
-    // // SelfIntroduction 페이지에 진입할 때 overflow-auto 설정
-    // document.body.style.overflow = "auto";
-    // // 페이지를 벗어날 때 overflow-hidden으로 되돌림
-    // return () => {
-    //   document.body.style.overflow = "hidden";
-    // };
   }, [state.email]);
 
   const handleDeleteSelfIntroduction = async (title) => {
@@ -61,20 +56,20 @@ export default function SelfIntroduction() {
   const SelfIntroductionList = ({ title }) => {
     return (
       <div className="border rounded-xl py-5 px-10 flex items-center relative w-full">
-        <div className="font-bold text-lg">{title}</div>
-        <div className="pb-7">
+        <div className="font-bold text-lg flex-1">{title}</div>
+        <div className="absolute right-0 top-0 h-full flex">
           <Link
-            className="bg-customBlue text-white rounded-lg px-6 py-1 text-sm absolute right-32 cursor-pointer"
+            className="bg-customBlue text-white px-7 py-6 text-sm flex items-center justify-center cursor-pointer h-full"
             href={`/selfIntroduction/edit?title=${encodeURIComponent(title)}`}
           >
             edit
           </Link>
-        </div>
-        <div
-          className="bg-customGray text-white rounded-lg px-3 py-1 text-sm absolute right-10 cursor-pointer"
-          onClick={() => handleDeleteSelfIntroduction(title)}
-        >
-          delete
+          <div
+            className="bg-customGray text-white rounded-r-lg px-5 py-6 text-sm flex items-center justify-center cursor-pointer h-full"
+            onClick={() => handleDeleteSelfIntroduction(title)}
+          >
+            delete
+          </div>
         </div>
       </div>
     );
@@ -91,7 +86,12 @@ export default function SelfIntroduction() {
             placeholder="search your list..."
             className="border rounded-lg pr-28 h-10 w-[25rem] px-5 ml-[15rem]"
           />
-          <button className="absolute right-[20rem]">Search</button>
+          <div
+            className="absolute right-[19.5rem] cursor-pointer p-2 rounded-full"
+            style={{ backgroundColor: "#E9E9E9" }}
+          >
+            <FaSearch />
+          </div>
           <Link
             href="/selfIntroduction/create"
             className="text-white font-semibold px-4 py-2 bg-customBlue rounded-lg ml-[6.5rem]"
