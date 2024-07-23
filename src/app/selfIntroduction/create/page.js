@@ -5,7 +5,6 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import Image from "next/image";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import exampleEssays from "./exampleEssay";
 import Link from "next/link";
 import { Context } from "../../appProvider";
 import { MdDeleteOutline } from "react-icons/md";
@@ -36,22 +35,30 @@ export default function Create() {
     console.log(title, university, major, club, reading);
 
     const prompt = `
-    당신은 입시를 위하여 대학교에 제출할 자소서를 작성하는 학생입니다.
-    ${university} ${major}에 지원하고 싶어서 자소서를 쓰려고 합니다.
-    나는 고등학교에서 동아리활동으로 ${club},
-    독서활동으로는 ${reading}.
+    당신은 회사에 입사하기 위하여 이력서를 쓰는 취업준비생입니다.
+    ${university} ${major}에 지원하고 싶어서 이력서를 쓰려고 합니다.
+    지원하는 곳과 관련된 경험으로는 ${club},
+    지원하기 위한 노력으로는 ${reading}.
 
-    1. 고등학교 재학 기간 중 자신의 진로와 관련하여 어떤 노력을 해왔는지 본인에게 의미 있는 학습 경험과 교내
-    활동을 중심으로 기술해 주시기 바랍니다.
-    2. 특수기호 금지
-    3. 첫문장에는 대학교 지원 동기로 시작, 이후에 동아리 활동과 자신의 느낀점, 독서 활동 순으로 작성
-    4. 예의 바르고 차분한 느낌으로 한글로 작성할 것
-    5. 공백 포함 1000자 이상 1500자 이하로 작성할 것
-    6. 접속사를 이용하여 자연스럽게 흐름이 이어지도록 할 것
-    7. 대학교 언급 금지
-    8. 문단은 엔터키로 구분 해줘
+    다음 질문에 대해 한글로 예의 바르고 차분한 느낌으로 답변해 주세요. 특수 기호(예: !, @, #, $, %, ^, &, *, ** 등)를 사용하지 않고 공백 포함 600자 이상 1000자 이하로 작성해 주세요. 접속사를 이용하여 자연스럽게 흐름이 이어지도록 하고, 답변할 때 한 번의 엔터로만 문단을 구분하여 한 단락으로 작성해 주세요.
 
-    내용을 직접 겪은 것 처럼 과정을 자세히 작성해라
+    지원 동기는 경험과 관련지어 작성해 주세요.
+    수많은 직무 중에서 왜 이 직무를 선택했는지 구체적으로 생각해야합니다.
+    입사 이후에 어떤 노력을 할 것인지 작성해 주세요.
+    회사가 제공하는 직무소개서(job description)을 보면서 내가 원하는 이 직무와 회사가 제공하는 일자리가 어떻게 적합한지 적어야합니다.
+    먼저 제가 지원하는 직무에 대해 그 회사가 잘하는 것을 칭찬해 주세요.
+    회사에 대해 감명받은 것을 작성해 주세요
+    최근 지원하는 회사의 지원하는 부문의 이슈에 대해서도 구체적으로 언급하며 자신의 생각과 관심을 어필해 주세요.
+    회사 지원 자소서의 예시 답변을 참고하여 자소서를 작성해 주세요.
+    내용마다 자신의 작성 근거 또는 에피소드의 내용을 자세히 설명해 주세요
+    답변은 순서에 상관없이 자연스럽게 연결해주세요
+    질문에 대한 답변 내용은 필수적으로 들어가야 합니다.
+    
+    아래의 예시 형식으로 작성해 주세요:
+    
+    저는 어린 시절부터 대한항공의 인상적인 광고에 깊은 감명을 받았습니다. 그들의 창의적인 접근 방식과 글로벌 커뮤니케이션에 대한 지속적인 노력은 저에게 마케팅에 대한 열정을 불러일으켰습니다. 지원 부문의 직무 수행을 위해 저는 마케팅학을 전공하여 기본적인 원리를 굳건히 다졌습니다. 또한, 학교 광고 기획을 담당한 대학 동아리 활동을 통해 실무적인 경험을 쌓았습니다. 이러한 경험을 통해 목표 청중을 식별하고, 설득력 있는 메시지를 개발하며, 효과적인 캠페인을 실행하는 데 필요한 기술과 지식을 습득했습니다. 입사 이후 저는 대한항공의 브랜드 가치를 더욱 높이고, 고객 경험을 향상시키기 위해 노력할 것입니다. 특히 혁신적인 마케팅 전략을 통해 새로운 시장을 개척하고, 회사의 글로벌 영향력을 강화하는 데 기여하고자 합니다. 저의 열정과 성실함을 바탕으로 대한항공의 성공에 이바지할 수 있을 것으로 확신합니다.
+    
+    이제, 위의 형식을 참고하여 답변을 작성해 주세요:
       `;
     setGeneratedEssay("");
 
@@ -132,7 +139,7 @@ export default function Create() {
             </div>
             <div className="flex gap-7">
               <div className="w-60">
-                <div className="font-semibold pb-2 pl-2">지원 희망 대학</div>
+                <div className="font-semibold pb-2 pl-2">지원 희망 회사</div>
                 <input
                   {...register("university", { required: true })}
                   placeholder="university"
@@ -140,7 +147,7 @@ export default function Create() {
                 />
               </div>
               <div className="w-60">
-                <div className="font-semibold pb-2 pl-2">지원 희망 학과</div>
+                <div className="font-semibold pb-2 pl-2">지원 희망 부문</div>
                 <input
                   {...register("major", { required: true })}
                   placeholder="major"
@@ -150,7 +157,7 @@ export default function Create() {
             </div>
             <div className="flex gap-7">
               <div className="w-60">
-                <div className="font-semibold pb-2 pl-2">동아리 활동</div>
+                <div className="font-semibold pb-2 pl-2">부문 관련 경험</div>
                 <textarea
                   {...register("club", { required: true })}
                   placeholder="club"
@@ -158,7 +165,7 @@ export default function Create() {
                 />
               </div>
               <div className="w-60">
-                <div className="font-semibold pb-2 pl-2">독서 활동</div>
+                <div className="font-semibold pb-2 pl-2">노력</div>
                 <textarea
                   onKeyUp={enterKey}
                   {...register("reading", { required: true })}
@@ -249,8 +256,8 @@ export default function Create() {
                 </button>
               </div>
             </div>
-            <div className="border rounded-lg w-[40rem] h-[30rem] shadow-lg px-10 py-5 flex jusitfy-center items-center overflow-y-auto">
-              <div className="w-full h-full flex justify-center items-center whitespace-pre-wrap">
+            <div className="border rounded-lg w-[40rem] h-[30rem] shadow-lg px-10 py-10 flex jusitfy-center items-center">
+              <div className="w-full h-full flex justify-center items-center whitespace-pre-wrap pr-5 overflow-y-auto">
                 {generatedEssay ? (
                   <div className="max-h-full w-full">{generatedEssay}</div>
                 ) : (
