@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { Context } from "../../appProvider";
+import { useRouter } from "next/navigation";
 
 export default function Edit() {
   const { state } = useContext(Context);
@@ -11,6 +12,7 @@ export default function Edit() {
   const [selfIntroductionData, setSelfIntroductionData] = useState("");
   const [charCountWithSpaces, setCharCountWithSpaces] = useState(0);
   const [charCountWithoutSpaces, setCharCountWithoutSpaces] = useState(0);
+  const router = useRouter();
 
   useEffect(() => {
     if (title) {
@@ -44,12 +46,42 @@ export default function Edit() {
     setCharCountWithoutSpaces(newText.replace(/\s/g, "").length);
   };
 
+  const handleSave = async () => {
+    try {
+      // Update existing self-introduction
+      const saveResponse = await fetch("/api/updateSelfIntroduction", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: state.email,
+          title,
+          content: selfIntroductionData,
+        }),
+      });
+      if (!saveResponse.ok) {
+        const errorData = await saveResponse.json();
+        alert(`저장 실패: ${errorData.message}`);
+        return;
+      }
+      alert("자소서가 저장되었습니다.");
+      router.push("/selfIntroduction");
+    } catch (error) {
+      console.error("Failed to save selfIntroduction", error);
+      alert("자소서 저장에 실패하였습니다.");
+    }
+  };
+
   return (
     <div className="mx-[18rem] pt-10">
       <div className="flex">
         <div className="font-bold text-xl py-5 pl-10">Editing "{title}"</div>
         <div className="flex items-center">
-          <button className="bg-customBlue text-white text-lg rounded-lg px-3">
+          <button
+            className="bg-customBlue text-white text-lg rounded-lg px-3"
+            onClick={handleSave}
+          >
             Save
           </button>
         </div>
