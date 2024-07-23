@@ -154,7 +154,7 @@ export default function Edit() {
             <div className="font-semibold px-5">내용 입력</div>
           </div>
           <div className="border rounded-bl-lg h-[30rem] flex flex-col">
-            <div className="overflow-y-auto py-5 px-5">
+            <div className="overflow-y-auto py-5 px-5 h-[27rem]">
               <HighlightWithinTextarea
                 style={{
                   width: "100%",
