@@ -2,9 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 export default function Page() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -32,10 +34,27 @@ export default function Page() {
           return;
         }
         alert("회원가입 성공!");
+
+        handleFirstUserPorfile(email);
+        router.push("/login");
       } catch (error) {
         console.error("회원가입 중 오류 발생:", error);
         alert("회원가입 중 오류가 발생했습니다. 다시 시도해주세요.");
       }
+    }
+  };
+
+  const handleFirstUserPorfile = (email) => {
+    try {
+      fetch("/api/firstProfile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+    } catch (error) {
+      console.error("Error setting up first user profile:", error);
     }
   };
 
