@@ -9,7 +9,6 @@ export default function VirtualInterview() {
   const [essays, setEssays] = useState([]);
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [selectedEssayIndex, setSelectedEssayIndex] = useState(null);
-  const [generatedQuestions, setGeneratedQuestions] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -51,7 +50,6 @@ export default function VirtualInterview() {
 
       // Ensure questionsData is an array before saving
       if (Array.isArray(questionsData.questions)) {
-        setGeneratedQuestions(questionsData.questions);
         const saveResponse = await fetch('/api/saveQuestions', {
           method: 'POST',
           headers: {
@@ -107,19 +105,6 @@ export default function VirtualInterview() {
           >
             면접 보러 가기
           </button>
-        </div>
-      )}
-      {generatedQuestions.length > 0 && (
-        <div className="mt-6">
-          <h2 className="text-xl font-bold mb-4">생성된 질문:</h2>
-          <ul className="space-y-2">
-            {generatedQuestions.map((qna, index) => (
-              <li key={index} className="border rounded-lg p-4">
-                <p className="font-bold">Question {index + 1}:</p>
-                <p>{qna.question}</p>
-              </li>
-            ))}
-          </ul>
         </div>
       )}
     </div>
