@@ -62,8 +62,9 @@ export default function SelfIntroduction() {
     return (
       <div className="border rounded-xl py-5 px-10 flex items-center relative w-full">
         <div className="font-bold text-lg">{title}</div>
-        <div className="bg-customBlue text-white rounded-lg px-6 py-1 text-sm absolute right-32 cursor-pointer">
+        <div className="pb-7">
           <Link
+            className="bg-customBlue text-white rounded-lg px-6 py-1 text-sm absolute right-32 cursor-pointer"
             href={`/selfIntroduction/edit?title=${encodeURIComponent(title)}`}
           >
             edit

@@ -3,12 +3,30 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { useContext } from "react";
+import { IoPersonCircleSharp } from "react-icons/io5";
+import { useContext, useEffect, useState } from "react";
 import { Context } from "./appProvider";
 
 export default function ClientNavigation() {
   const { state } = useContext(Context);
+  const [profileImg, setProfileImg] = useState("");
   const pathname = usePathname();
+
+  useEffect(() => {
+    if (state.email) {
+      const imgKey = `profile_${state.email}`;
+      const storedImg = localStorage.getItem(imgKey);
+      if (storedImg) {
+        setProfileImg(storedImg);
+      }
+    }
+  }, [state.email]);
+
+  useEffect(() => {
+    if (state.userProfile) {
+      setProfileImg(state.userProfile);
+    }
+  }, [state.userProfile]);
 
   return (
     <div className="h-16 flex items-center border-black overflow-hidden shadow-lg">
@@ -46,15 +64,22 @@ export default function ClientNavigation() {
         </div>
       </Link>
       <Link href="/profile" className="flex ml-[6rem]">
-        <div className="mx-3">
-          <Image
-            src="/images/person-circle.png"
-            alt="기본 이미지"
-            width={25}
-            height={25}
-          />
+        <div className="mx-2">
+          {profileImg ? (
+            <img
+              className="m-3 h-10 w-10 rounded-full"
+              src={profileImg}
+              alt="프로필 이미지"
+            />
+          ) : (
+            <IoPersonCircleSharp size={35} />
+          )}
         </div>
-        <div className="font-bold text-center text-customGray">
+        <div
+          className={`${
+            profileImg ? "mt-[16px]" : "mt-[4px]"
+          }  font-bold text-center text-customGray`}
+        >
           {state.username}
         </div>
       </Link>
