@@ -8,6 +8,7 @@ const AppProvider = ({ children }) => {
   const [state, setState] = useState({
     username: "",
     email: "",
+    userProfile: "",
   });
 
   useEffect(() => {
