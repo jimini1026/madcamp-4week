@@ -106,12 +106,6 @@ export default function StreamingAvatar() {
 
     const startTalkCallback = (e) => {
       console.log("Avatar started talking", e);
-      if (currentQuestionIndex < questionsAndAnswers.length) {
-        setDisplayedQuestions((prev) => [
-          ...prev,
-          questionsAndAnswers[currentQuestionIndex].question,
-        ]);
-      }
     };
 
     const stopTalkCallback = (e) => {
@@ -239,13 +233,16 @@ export default function StreamingAvatar() {
             // Move to next question
             if (currentQuestionIndex < questionsAndAnswers.length - 1) {
               setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
-              setDisplayedQuestions((prev) => [
-                ...prev,
+              setDisplayedQuestions([
                 questionsAndAnswers[currentQuestionIndex + 1].question,
               ]);
               await handleSpeak(
                 questionsAndAnswers[currentQuestionIndex + 1].question
               );
+            } else {
+              setDisplayedQuestions([]);
+              await handleSpeak("면접이 종료되었습니다");
+              setCurrentQuestionIndex(currentQuestionIndex + 1); // To ensure interview summary is shown
             }
           }
         } catch (err) {
@@ -276,11 +273,14 @@ export default function StreamingAvatar() {
     // Move to next question
     if (currentQuestionIndex < questionsAndAnswers.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setDisplayedQuestions((prev) => [
-        ...prev,
-        questionsAndAnswers[currentQuestionIndex].question,
+      setDisplayedQuestions([
+        questionsAndAnswers[currentQuestionIndex + 1].question,
       ]);
-      await handleSpeak(questionsAndAnswers[currentQuestionIndex].question);
+      await handleSpeak(questionsAndAnswers[currentQuestionIndex + 1].question);
+    } else {
+      setDisplayedQuestions([]);
+      await handleSpeak("면접이 종료되었습니다");
+      setCurrentQuestionIndex(currentQuestionIndex + 1); // To ensure interview summary is shown
     }
   };
 
@@ -383,15 +383,26 @@ export default function StreamingAvatar() {
         </CardFooter>
       </Card>
       <div className="mt-4">
-        <h2 className="text-xl font-bold mb-2">Interview Progress:</h2>
+        {currentQuestionIndex >= questionsAndAnswers.length && (
+          <>
+            <h2 className="text-xl font-bold mb-2">면접이 종료되었습니다</h2>
+            <h2 className="text-xl font-bold mb-2">Interview Summary:</h2>
+            {questionsAndAnswers.map((qa, index) => (
+              <div key={index} className="mb-4">
+                <p>
+                  <strong>Question {index + 1}:</strong> {qa.question}
+                </p>
+                <p>
+                  <strong>Answer:</strong> {qa.answer}
+                </p>
+              </div>
+            ))}
+          </>
+        )}
         {displayedQuestions.map((question, index) => (
           <div key={index} className="mb-4">
             <p>
-              <strong>Question {index + 1}:</strong> {question}
-            </p>
-            <p>
-              <strong>Answer:</strong>{" "}
-              {questionsAndAnswers[index]?.answer || ""}
+              <strong>Question:</strong> {question}
             </p>
           </div>
         ))}

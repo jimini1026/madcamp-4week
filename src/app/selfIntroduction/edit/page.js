@@ -9,6 +9,8 @@ export default function Edit() {
   const searchParams = useSearchParams();
   const title = searchParams.get("title");
   const [selfIntroductionData, setSelfIntroductionData] = useState("");
+  const [charCountWithSpaces, setCharCountWithSpaces] = useState(0);
+  const [charCountWithoutSpaces, setCharCountWithoutSpaces] = useState(0);
 
   useEffect(() => {
     if (title) {
@@ -24,6 +26,8 @@ export default function Edit() {
           }
           const data = await response.json();
           setSelfIntroductionData(data.content);
+          setCharCountWithSpaces(data.content.length);
+          setCharCountWithoutSpaces(data.content.replace(/\s/g, "").length);
         } catch (error) {
           console.error("Failed to fetch data: ", error);
         }
@@ -32,6 +36,13 @@ export default function Edit() {
       fetchData();
     }
   }, [title, state.email]);
+
+  const handleTextChange = (e) => {
+    const newText = e.target.value;
+    setSelfIntroductionData(newText);
+    setCharCountWithSpaces(newText.length);
+    setCharCountWithoutSpaces(newText.replace(/\s/g, "").length);
+  };
 
   return (
     <div className="mx-[18rem] pt-10">
@@ -46,9 +57,13 @@ export default function Edit() {
       <div className="border bg-white shadow-lg rounded-lg mx-8 px-5 py-5 h-[30rem]">
         <textarea
           className="w-full h-full border-none outline-none"
-          onChange={(e) => setSelfIntroductionData(e.target.value)}
+          onChange={handleTextChange}
           value={selfIntroductionData}
         />
+        <div className="pt-2">
+          <p>글자 수 (공백 포함): {charCountWithSpaces}</p>
+          <p>(공백 제외): {charCountWithoutSpaces}</p>
+        </div>
       </div>
     </div>
   );
