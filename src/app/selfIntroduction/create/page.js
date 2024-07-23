@@ -165,7 +165,7 @@ export default function Create() {
                 />
               </div>
               <div className="w-60">
-                <div className="font-semibold pb-2 pl-2">노력</div>
+                <div className="font-semibold pb-2 pl-2">관련 노력</div>
                 <textarea
                   onKeyUp={enterKey}
                   {...register("reading", { required: true })}

@@ -15,6 +15,29 @@ export default function Edit() {
   const router = useRouter();
 
   useEffect(() => {
+    const checkSpelling = async () => {
+      const sentence = "리랜드는 얼굴 골격이 굵은게,";
+      try {
+        const response = await fetch("/api/spellCheck", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sentence }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log(data.results);
+      } catch (error) {
+        console.error("Spell check failed:", error);
+      }
+    };
+
+    checkSpelling();
+  }, []);
+
+  useEffect(() => {
     if (title) {
       const fetchData = async () => {
         try {
