@@ -1,7 +1,24 @@
-// src/data/InterviewQuestions.js
+
 export const initialQuestionsAndAnswers = [
-    { question: "자기소개를 해보세요", answer: "" },
-    { question: "본 회사에 지원한 동기는 무엇입니까?", answer: "" },
-    { question: "마지막으로 하고 싶은 말을 해주세요", answer: "" },
-  ];
+  {
+    "question": "귀하의 기획 분야 경력 목표는 무엇이며, 이를 삼성전자에서 어떻게 달성할 계획입니까?",
+    "answer": ""
+  },
+  {
+    "question": "삼성전자의 기획 문화에 대해 어떻게 알고 있으며, 귀하의 기술과 경험은 이 문화에 어떻게 기여할 수 있다고 생각하십니까?",
+    "answer": ""
+  },
+  {
+    "question": "삼성전자의 반도체 산업 확장이 귀하의 개인적인 목표와 야망에 어떻게 일치하는지 설명해 주십시오.",
+    "answer": ""
+  },
+  {
+    "question": "삼성전자의 글로벌 혁신 허브로서의 역할이 귀하의 경력 발전에 어떤 영향을 미칠 것으로 기대합니까?",
+    "answer": ""
+  },
+  {
+    "question": "삼성전자의 혁신적인 사고에 기여하기 위해 귀하가 구체적으로 고려하고 있는 혁신적인 아이디어는 무엇입니까?",
+    "answer": ""
+  }
+];
   
