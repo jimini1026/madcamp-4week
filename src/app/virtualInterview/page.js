@@ -1,108 +1,127 @@
 "use client";
 
-import { useState, useRef } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { Context } from '../appProvider';
 import { useRouter } from 'next/navigation';
 
 export default function VirtualInterview() {
-  const [isRecording, setIsRecording] = useState(false);
-  const mediaRecorderRef = useRef(null);
-  const [audioURL, setAudioURL] = useState('');
-  const [transcript, setTranscript] = useState('');
-  const [error, setError] = useState('');
-  const router = useRouter(); // Initialize the router
+  const { state } = useContext(Context);
+  const [essays, setEssays] = useState([]);
+  const [expandedIndex, setExpandedIndex] = useState(null);
+  const [selectedEssayIndex, setSelectedEssayIndex] = useState(null);
+  const [generatedQuestions, setGeneratedQuestions] = useState([]);
+  const router = useRouter();
 
-  const handleStartRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
-      const audioChunks = [];
-      
-      mediaRecorderRef.current.ondataavailable = event => {
-        audioChunks.push(event.data);
-      };
+  useEffect(() => {
+    // Fetch essays from your API or static data
+    const fetchEssays = async () => {
+      try {
+        const response = await fetch(`/api/getUserSelfIntroduction?email=${encodeURIComponent(state.email)}`);
+        const data = await response.json();
+        setEssays(data);
+      } catch (error) {
+        console.error('Failed to fetch essays:', error);
+      }
+    };
 
-      mediaRecorderRef.current.onstop = async () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-        const audioUrl = URL.createObjectURL(audioBlob);
-        setAudioURL(audioUrl);
-
-        const formData = new FormData();
-        formData.append('audio', audioBlob, 'recording.wav');
-
-        try {
-          const response = await fetch('/api/recognize', {
-            method: 'POST',
-            body: formData,
-          });
-
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-
-          const data = await response.json();
-          if (data.error) {
-            setError(data.error);
-          } else {
-            setTranscript(data.transcript);
-          }
-        } catch (err) {
-          setError('Failed to send audio to server');
-        }
-      };
-
-      mediaRecorderRef.current.start();
-      setIsRecording(true);
-    } catch (err) {
-      setError('Failed to start recording');
+    if (state.email) {
+      fetchEssays();
     }
+  }, [state.email]);
+
+  const handleExpand = (index) => {
+    setExpandedIndex(expandedIndex === index ? null : index);
   };
 
-  const handleStopRecording = () => {
-    mediaRecorderRef.current.stop();
-    setIsRecording(false);
+  const handleCheckboxChange = (index) => {
+    setSelectedEssayIndex(selectedEssayIndex === index ? null : index);
   };
 
-  const handleNavigate = () => {
-    router.push('/streamingavatar');
+  const handleNavigate = async () => {
+    if (selectedEssayIndex !== null) {
+      const selectedEssay = essays[selectedEssayIndex];
+      const response = await fetch('/api/generateQuestions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: selectedEssay.content, numQuestions: 5 }), // 요청 시 문제의 수를 지정
+      });
+      const questionsData = await response.json();
+
+      // Ensure questionsData is an array before saving
+      if (Array.isArray(questionsData.questions)) {
+        setGeneratedQuestions(questionsData.questions);
+        const saveResponse = await fetch('/api/saveQuestions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ questions: questionsData.questions }),
+        });
+
+        if (saveResponse.ok) {
+          router.push('/streamingavatar');
+        } else {
+          console.error('Failed to save questions');
+        }
+      } else {
+        console.error('Invalid questions format:', questionsData);
+      }
+    }
   };
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
-      <h1 className="text-2xl font-bold mb-6">Virtual Interview Page</h1>
-      <div className="flex justify-center mb-4">
-        <button
-          onClick={isRecording ? handleStopRecording : handleStartRecording}
-          className={`px-4 py-2 font-bold text-white rounded ${isRecording ? 'bg-red-500' : 'bg-blue-500'}`}
-        >
-          {isRecording ? 'Stop Recording' : 'Start Recording'}
-        </button>
-      </div>
-      {audioURL && (
-        <div className="mt-4">
-          <h2 className="text-xl font-bold mb-2">Recorded Audio:</h2>
-          <audio src={audioURL} controls />
+      <h1 className="text-2xl font-bold mb-6">면접 질문을 추출할 글을 고르세요.</h1>
+      <ul className="space-y-4">
+        {essays.map((essay, index) => (
+          <li key={index} className="border rounded-lg p-4">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                checked={selectedEssayIndex === index}
+                onChange={() => handleCheckboxChange(index)}
+                className="mr-4 w-6 h-6"
+              />
+              <div
+                className="cursor-pointer font-bold text-lg"
+                onClick={() => handleExpand(index)}
+              >
+                {essay.title}
+              </div>
+            </div>
+            {expandedIndex === index && (
+              <div className="mt-2">
+                <p>{essay.content}</p>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+      {selectedEssayIndex !== null && (
+        <div className="flex justify-center mt-6">
+          <button
+            onClick={handleNavigate}
+            className="px-4 py-2 font-bold text-white bg-green-500 rounded"
+          >
+            면접 보러 가기
+          </button>
         </div>
       )}
-      {transcript && (
-        <div className="mt-4">
-          <h2 className="text-xl font-bold mb-2">Transcript:</h2>
-          <p>{transcript}</p>
+      {generatedQuestions.length > 0 && (
+        <div className="mt-6">
+          <h2 className="text-xl font-bold mb-4">생성된 질문:</h2>
+          <ul className="space-y-2">
+            {generatedQuestions.map((qna, index) => (
+              <li key={index} className="border rounded-lg p-4">
+                <p className="font-bold">Question {index + 1}:</p>
+                <p>{qna.question}</p>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
-      {error && (
-        <div className="mt-4 text-red-500">
-          <h2 className="text-xl font-bold mb-2">Error:</h2>
-          <p>{error}</p>
-        </div>
-      )}
-      <div className="flex justify-center mt-6">
-        <button
-          onClick={handleNavigate}
-          className="px-4 py-2 font-bold text-white bg-green-500 rounded"
-        >
-          Go to Streaming Avatar
-        </button>
-      </div>
     </div>
   );
 }
