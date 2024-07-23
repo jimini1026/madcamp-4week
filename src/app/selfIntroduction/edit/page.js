@@ -92,7 +92,7 @@ export default function Edit() {
           onChange={handleTextChange}
           value={selfIntroductionData}
         />
-        <div className="pt-2">
+        <div className="pt-7 font-semibold text-sm">
           <p>글자 수 (공백 포함): {charCountWithSpaces}</p>
           <p>(공백 제외): {charCountWithoutSpaces}</p>
         </div>
