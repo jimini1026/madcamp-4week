@@ -16,7 +16,8 @@ export default async (req, res) => {
       .toArray();
 
     if (data.length === 0) {
-      alert("No data found");
+      // Instead of using alert, return a response with status 404
+      return res.status(404).json({ error: "No data found" });
     }
 
     res.status(200).json(data);

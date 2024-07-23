@@ -8,7 +8,7 @@ export default async (req, res) => {
   const { email, title, content } = req.body;
 
   try {
-    const client = await clientPromise;
+    const client = await clientPromise; 
     const db = client.db("madcamp4");
     const collection = db.collection("user_self_introduction");
 
