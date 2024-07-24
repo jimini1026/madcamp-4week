@@ -12,6 +12,7 @@ export default function VirtualInterview() {
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [selectedEssayIndex, setSelectedEssayIndex] = useState(null);
   const [content, setContent] = useState(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -51,6 +52,7 @@ export default function VirtualInterview() {
 
   const handleNavigate = async () => {
     if (selectedEssayIndex !== null) {
+      setLoading(true);
       const selectedEssay = essays[selectedEssayIndex];
       const response = await fetch("/api/generateQuestions", {
         method: "POST",
@@ -75,13 +77,18 @@ export default function VirtualInterview() {
         });
 
         if (saveResponse.ok) {
+          setLoading(false);
           router.push("/streamingavatar");
         } else {
+          setLoading(false);
           console.error("Failed to save questions");
         }
       } else {
+        setLoading(false);
         console.error("Invalid questions format:", questionsData);
       }
+    } else {
+      alert("자소서를 선택하세요");
     }
   };
 
@@ -144,13 +151,9 @@ export default function VirtualInterview() {
                 ? "bg-customBlue text-white"
                 : "bg-customGray"
             } font-bold rounded-lg w-[7rem] py-2 flex items-center justify-center ml-[36rem] cursor-pointer`}
-            onClick={() => {
-              if (selectedEssayIndex !== null) {
-                handleNavigate();
-              }
-            }}
+            onClick={handleNavigate}
           >
-            Select
+            {loading ? "Loading..." : "Select"}
           </div>
         </div>
       </div>

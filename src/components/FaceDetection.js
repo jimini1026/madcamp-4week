@@ -1,11 +1,10 @@
-// src/components/FaceDetection.js
 "use client";
 
 import React, { useRef, useEffect, useState } from "react";
 import * as faceapi from "face-api.js";
 import Webcam from "react-webcam";
 
-const FaceDetection = () => {
+const FaceDetection = ({ width, height }) => {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
   const [feedback, setFeedback] = useState("");
@@ -38,10 +37,12 @@ const FaceDetection = () => {
           .withFaceLandmarks()
           .withFaceExpressions();
 
-        const resizedDetections = faceapi.resizeResults(
-          detections,
-          displaySize
-        );
+        if (!detections || detections.length === 0) {
+          setFeedback("No faces detected");
+          return;
+        }
+
+        const resizedDetections = faceapi.resizeResults(detections, displaySize);
 
         canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
 
@@ -88,7 +89,7 @@ const FaceDetection = () => {
   };
 
   return (
-    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+    <div style={{ position: "relative", width, height }}>
       <Webcam
         ref={webcamRef}
         onPlay={handleVideoOnPlay} // onPlay 이벤트 핸들러 설정
@@ -96,10 +97,9 @@ const FaceDetection = () => {
           position: "absolute",
           top: 0,
           left: 0,
-          width: "400px",
-          height: "400px",
+          width,
+          height,
           zIndex: 8,
-          //opacity: 0.9, // 웹캠 투명도 조절
         }}
       />
       <canvas
@@ -108,8 +108,8 @@ const FaceDetection = () => {
           position: "absolute",
           top: 0,
           left: 0,
-          width: "100%",
-          height: "100%",
+          width,
+          height,
           zIndex: 9,
         }}
       />
