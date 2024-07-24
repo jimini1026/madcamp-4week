@@ -15,6 +15,10 @@ export default function StreamingAvatar() {
   const [data, setData] = useState(null);
   const [initialized, setInitialized] = useState(false);
   const [startClicked, setStartClicked] = useState(false);
+  const [avatarReady, setAvatarReady] = useState(false);
+  const [showSubtitles, setShowSubtitles] = useState(false);
+  const [currentQuestion, setCurrentQuestion] = useState("");
+
   const mediaStream = useRef(null);
   const avatar = useRef(null);
 
@@ -32,6 +36,7 @@ export default function StreamingAvatar() {
 
   const handleSpeak = async (textToSpeak) => {
     setIsLoadingRepeat(true);
+    setCurrentQuestion(textToSpeak);
     if (!initialized || !avatar.current) {
       console.log("Avatar API is not initialized");
       setIsLoadingRepeat(false);
@@ -63,6 +68,7 @@ export default function StreamingAvatar() {
       mediaStream.current.onloadedmetadata = () => {
         mediaStream.current.play();
         console.log("Playing");
+        setAvatarReady(true); // Avatar is ready to play
       };
     }
   }, [stream]);
@@ -125,26 +131,35 @@ export default function StreamingAvatar() {
     <div className="w-full flex flex-col gap-4 overflow-hidden relative">
       {!startClicked && (
         <div className="absolute inset-0 z-10 flex justify-center items-center bg-gray-800 bg-opacity-50">
-          <Button onClick={startInterview} className="bg-green-500 text-white">
-            Start Interview
-          </Button>
+          {avatarReady ? (
+            <Button onClick={startInterview} className="bg-green-500 text-white">
+              시작하기
+            </Button>
+          ) : (
+            <div className="text-white text-2xl">준비 중...</div>
+          )}
         </div>
       )}
       <Card className={`overflow-hidden ${startClicked ? '' : 'blur-sm'}`}>
         <CardBody className="h-[500px] flex justify-center items-center">
           <div className="flex w-full justify-center gap-4">
-            <div className="h-[400px] w-[550px] justify-center items-center flex rounded-lg overflow-hidden">
+            <div className="h-[400px] w-[550px] flex items-center justify-center rounded-lg overflow-hidden relative">
               {stream ? (
                 <div className="relative h-full w-full flex justify-center items-center">
                   <video ref={mediaStream} autoPlay playsInline className="h-full w-auto object-cover">
                     <track kind="captions" />
                   </video>
+                  {showSubtitles && (
+                    <div className="absolute bottom-4 bg-black bg-opacity-50 text-white p-2 rounded">
+                      {currentQuestion}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <Spinner size="lg" color="default" />
               )}
             </div>
-            <div className="h-[500px] w-[450px]">
+            <div className="h-[500px] w-[450px] flex items-center justify-center">
               <FaceDetection width="450px" height="500px" />
             </div>
           </div>
@@ -153,6 +168,11 @@ export default function StreamingAvatar() {
         <CardFooter className="flex flex-col gap-3">
           {startClicked && (
             <>
+              <div className="flex justify-center mb-4">
+                <Button onClick={() => setShowSubtitles(!showSubtitles)} className="px-4 py-2 font-bold text-white rounded bg-blue-500">
+                  {showSubtitles ? "자막 감추기" : "자막 보기"}
+                </Button>
+              </div>
               <div className="flex justify-center mb-4">
                 <Button onClick={isRecording ? handleStopRecording : handleStartRecording} className={`px-4 py-2 font-bold text-white rounded ${isRecording ? "bg-red-500" : "bg-blue-500"}`}>
                   {isRecording ? "Stop Recording" : "Start Recording"}
