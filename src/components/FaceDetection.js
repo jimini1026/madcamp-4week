@@ -65,7 +65,7 @@ const FaceDetection = ({ width, height }) => {
 
           if (eyeDirection > 10 || eyeDirection < -10) {
             setFeedback("시선을 면접관에게 맞춰주세요.");
-          } else if (expressions.neutral > 0.3 || expressions.angry > 0.2) {
+          } else if (expressions.neutral > 0.6 || expressions.angry > 0.5) {
             setFeedback(
               "표정이 너무 굳어있습니다. 편안한 표정을 지어 면접관에게 좋은 인상을 주세요."
             );
@@ -73,7 +73,7 @@ const FaceDetection = ({ width, height }) => {
             setFeedback(
               "표정이 부자연스럽습니다. 부드러운 표정을 유지해주세요."
             );
-          } else if (expressions.happy > 0.02) {
+          } else if (expressions.happy > 0.001) {
             setFeedback("좋은 표정입니다! 계속 유지하세요.");
           } else if (expressions.surprised > 0.2) {
             setFeedback("표정이 너무 과합니다. 자연스럽게 유지해주세요.");

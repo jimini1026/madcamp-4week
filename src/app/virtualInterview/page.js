@@ -98,7 +98,7 @@ export default function VirtualInterview() {
     <div className="flex px-20 py-10 gap-5">
       <div className="flex-[4]">
         <div className="border-y border-y-customGray px-10 py-5 relative">
-          <div className="font-bold text-lg flex absolute top-[-1rem] z-10 bg-white">
+          <div className="font-bold text-lg flex absolute top-[-1rem] z-10 bg-white font-pretendard text-2xl">
             <HiOutlineLightBulb size={23} />
             모의 면접 질문 생성
           </div>
@@ -155,7 +155,7 @@ export default function VirtualInterview() {
             } font-bold rounded-lg w-[7rem] py-2 flex items-center justify-center ml-[36rem] cursor-pointer`}
             onClick={handleNavigate}
           >
-            {loading ? "Loading..." : "Select"}
+            {loading ? <span className="dot-animate">Loading</span> : "Select"}
           </div>
         </div>
       </div>
@@ -171,6 +171,30 @@ export default function VirtualInterview() {
           {content}
         </div>
       </div>
+      <style jsx>{`
+        @keyframes dot-animate {
+          0% {
+            content: '';
+          }
+          20% {
+            content: '.';
+          }
+          40% {
+            content: '..';
+          }
+          60% {
+            content: '...';
+          }
+          100% {
+            content: '';
+          }
+        }
+
+        .dot-animate:after {
+          content: '';
+          animation: dot-animate 2.5s infinite steps(1, end);
+        }
+      `}</style>
     </div>
   );
 }

@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   try {
     const gemini = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY);
 
-    const prompt = `다음 자기소개서를 바탕으로 새로운 내용의 질문을 ${numQuestions}가지 해줘. 자기소개서에서 답을 찾을 수 있는 질문은 하지마. :\n\n${content}`;
+    const prompt = `다음 자기소개서를 바탕으로 새로운 내용의 질문을 ${numQuestions}가지 해주세요. 자기소개서에서 답을 찾을 수 있는 질문은 하지 말아주세요. 존댓말로 질문해주세요.:\n\n${content}`;
     const model = gemini.getGenerativeModel({ model: "gemini-pro" });
 
     console.log('Prompt:', prompt); // Log the prompt for debugging
