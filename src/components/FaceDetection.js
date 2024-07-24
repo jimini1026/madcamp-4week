@@ -96,10 +96,9 @@ const FaceDetection = () => {
           position: "absolute",
           top: 0,
           left: 0,
-          width: "100%",
-          height: "100%",
+          width: "400px",
+          height: "400px",
           zIndex: 8,
-          opacity: 0.9, // 웹캠 투명도 조절
         }}
       />
       <canvas
