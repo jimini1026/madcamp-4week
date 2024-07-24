@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   try {
     const gemini = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY);
 
-    const prompt = `다음 질문과 답변에 대한 피드백을 제공해줘.\n\n질문: ${question}\n\n답변: ${answer}\n\n피드백:`;
+    const prompt = `다음 질문과 답변에 대한 피드백을 제공해줘.\n\n질문: ${question}\n\n답변: ${answer}\n\n피드백을 제공한 후에 개선 사항을 "개선 사항:"으로 시작하여 구체적으로 제시해주세요.`;
     const model = gemini.getGenerativeModel({ model: "gemini-pro" });
 
     console.log('Prompt:', prompt); // Log the prompt for debugging
@@ -33,10 +33,24 @@ export default async function handler(req, res) {
     }
 
     // Extract the feedback from the response
-    const feedback = result.response.candidates[0].content.parts[0].text.trim();
-    console.log('Generated Feedback:', feedback); // Log the feedback to the terminal
+    let generatedText = result.response.candidates[0].content.parts[0].text.trim();
+    console.log('Generated Text:', generatedText); // Log the feedback to the terminal
 
-    res.status(200).json({ feedback });
+    // Split the feedback and improvement suggestions
+    const [feedbackPart, improvementPart] = generatedText.split("개선 사항:");
+
+    const cleanText = (text) => {
+      return text
+        .replace(/^\*+\s*/gm, '') // Remove leading "*" symbols and spaces
+        .replace(/\*\s*/g, '') // Remove "*" symbols within the text
+        .replace(/^피드백\s*:\s*/i, '') // Remove "피드백: " if it exists
+        .trim();
+    };
+
+    const feedback = feedbackPart ? cleanText(feedbackPart) : "No feedback found.";
+    const improvement = improvementPart ? cleanText(improvementPart) : "No improvement suggestions found.";
+
+    res.status(200).json({ feedback, improvement });
   } catch (error) {
     console.error('Error generating feedback:', error);
 
