@@ -22,9 +22,12 @@ export default function StreamingAvatar() {
 
   const mediaStream = useRef(null);
   const avatar = useRef(null);
+  const cameraStreamRef = useRef(null);
 
-  const defaultAvatarId = "josh_lite3_20230714";
-  const defaultVoiceId = "077ab11b14f04ce0b49b5f6e5cc20979";
+  const avatarIds = ["Wayne_20240711", "josh_lite3_20230714"];
+  const voiceIds = ["26b2064088674c80b1e5fc5ab1a068ea", "433c48a6c8944d89b3b76d2ddcc7176a"];
+
+  const getRandomElement = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef(null);
@@ -52,7 +55,11 @@ export default function StreamingAvatar() {
       const newToken = await fetchAccessToken();
       avatar.current = await initializeAvatar(newToken);
       setInitialized(true);
-      const res = await startAvatarSession(avatar.current, defaultAvatarId, defaultVoiceId, console.log);
+
+      const selectedAvatarId = getRandomElement(avatarIds);
+      const selectedVoiceId = getRandomElement(voiceIds);
+
+      const res = await startAvatarSession(avatar.current, selectedAvatarId, selectedVoiceId, console.log);
       setData(res);
       setStream(avatar.current.mediaStream);
     }
@@ -68,11 +75,27 @@ export default function StreamingAvatar() {
       mediaStream.current.srcObject = stream;
       mediaStream.current.onloadedmetadata = () => {
         mediaStream.current.play();
-        console.log("Playing");
+        console.log("Playing avatar stream");
         setAvatarReady(true); // Avatar is ready to play
       };
     }
   }, [stream]);
+
+  useEffect(() => {
+    async function setupCamera() {
+      try {
+        const cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+        cameraStreamRef.current.srcObject = cameraStream;
+        cameraStreamRef.current.onloadedmetadata = () => {
+          cameraStreamRef.current.play();
+          console.log("Playing camera stream");
+        };
+      } catch (err) {
+        console.error("Error accessing camera:", err);
+      }
+    }
+    setupCamera();
+  }, []);
 
   useEffect(() => {
     window.addEventListener("beforeunload", () => endAvatarSession(avatar.current, data?.sessionId, console.log));
@@ -121,6 +144,7 @@ export default function StreamingAvatar() {
 
   const startInterview = async () => {
     setStartClicked(true);
+    await handleSpeak("안녕하십니까. 면접을 시작하도록 하겠습니다");
     if (questionsAndAnswers.length > 0) {
       setDisplayedQuestions([questionsAndAnswers[0].question]);
       setCurrentQuestionIndex(0); // Reset to the first question
@@ -133,11 +157,16 @@ export default function StreamingAvatar() {
       {!startClicked && (
         <div className="absolute inset-0 z-20 flex justify-center items-center bg-gray-800 bg-opacity-50">
           {avatarReady ? (
-            <Button onClick={startInterview} className="bg-green-500 text-white">
-              시작하기
+            <Button 
+            onClick={startInterview} 
+            className="bg-transparent text-white border-2 border-white rounded-md"
+            >
+            시작하기
             </Button>
           ) : (
-            <div className="text-white text-2xl">준비 중...</div>
+            <div className="text-white text-2xl">
+              준비 중<span className="dot-animate"></span>
+            </div>
           )}
         </div>
       )}
@@ -145,9 +174,9 @@ export default function StreamingAvatar() {
       <Card className="overflow-hidden">
         <CardBody className="h-[500px] flex justify-center items-center overflow-hidden">
           <div className="flex w-full justify-center gap-4 overflow-hidden">
-            <div className="h-[400px] w-[550px] flex items-center justify-center rounded-lg overflow-hidden relative">
+            <div className="h-[400px] w-[550px] flex items-center justify-center overflow-hidden relative bg-black">
               {stream ? (
-                <div className="relative h-full w-full flex justify-center items-center overflow-hidden">
+                <div className="relative h-full w-full flex justify-center items-center overflow-hidden bg-black">
                   <video ref={mediaStream} autoPlay playsInline className="h-full w-auto object-cover">
                     <track kind="captions" />
                   </video>
@@ -162,7 +191,9 @@ export default function StreamingAvatar() {
               )}
             </div>
             <div className="h-[400px] w-[550px] flex items-center justify-center overflow-hidden rounded-lg">
-              <FaceDetection width="550px" height="400px" />
+              <video ref={cameraStreamRef} autoPlay playsInline className="h-full w-auto object-cover">
+                <track kind="captions" />
+              </video>
             </div>
           </div>
         </CardBody>
@@ -184,6 +215,30 @@ export default function StreamingAvatar() {
           )}
         </CardFooter>
       </Card>
+      <style jsx>{`
+        @keyframes dot-animate {
+          0% {
+            content: '';
+          }
+          20% {
+            content: '.';
+          }
+          40% {
+            content: '..';
+          }
+          60% {
+            content: '...';
+          }
+          100% {
+            content: '';
+          }
+        }
+
+        .dot-animate:after {
+          content: '';
+          animation: dot-animate 2.5s infinite steps(1, end);
+        }
+      `}</style>
     </div>
   );
 }
