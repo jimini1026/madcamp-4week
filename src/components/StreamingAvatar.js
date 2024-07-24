@@ -1,14 +1,26 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Button, Card, CardBody, CardFooter, Divider, Spinner } from "@nextui-org/react";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  Divider,
+  Spinner,
+} from "@nextui-org/react";
 import { fetchAccessToken } from "../utils/api";
-import { initializeAvatar, startAvatarSession, endAvatarSession, speakAvatar } from "../utils/AvatarControl";
+import {
+  initializeAvatar,
+  startAvatarSession,
+  endAvatarSession,
+  speakAvatar,
+} from "../utils/AvatarControl";
 import { startRecording, stopRecording } from "../utils/RecordingControl";
 import { initialQuestionsAndAnswers } from "../data/InterviewQuestions";
 import FaceDetection from "../components/FaceDetection"; // Adjust the import path if necessary
 
-export default function StreamingAvatar() {
+export default function StreamingAvatar({ essayTitle }) {
   const [isLoadingSession, setIsLoadingSession] = useState(true);
   const [isLoadingRepeat, setIsLoadingRepeat] = useState(false);
   const [stream, setStream] = useState(null);
@@ -26,7 +38,9 @@ export default function StreamingAvatar() {
   const [audioURL, setAudioURL] = useState("");
   const [error, setError] = useState("");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [questionsAndAnswers, setQuestionsAndAnswers] = useState(initialQuestionsAndAnswers);
+  const [questionsAndAnswers, setQuestionsAndAnswers] = useState(
+    initialQuestionsAndAnswers
+  );
   const [displayedQuestions, setDisplayedQuestions] = useState([]);
   const [interviewCompleted, setInterviewCompleted] = useState(false);
 
@@ -37,7 +51,12 @@ export default function StreamingAvatar() {
       setIsLoadingRepeat(false);
       return;
     }
-    await speakAvatar(avatar.current, textToSpeak, data?.sessionId, console.log);
+    await speakAvatar(
+      avatar.current,
+      textToSpeak,
+      data?.sessionId,
+      console.log
+    );
     setIsLoadingRepeat(false);
   };
 
@@ -46,7 +65,12 @@ export default function StreamingAvatar() {
       const newToken = await fetchAccessToken();
       avatar.current = await initializeAvatar(newToken);
       setInitialized(true);
-      const res = await startAvatarSession(avatar.current, defaultAvatarId, defaultVoiceId, console.log);
+      const res = await startAvatarSession(
+        avatar.current,
+        defaultAvatarId,
+        defaultVoiceId,
+        console.log
+      );
       setData(res);
       setStream(avatar.current.mediaStream);
     }
@@ -68,9 +92,13 @@ export default function StreamingAvatar() {
   }, [stream]);
 
   useEffect(() => {
-    window.addEventListener("beforeunload", () => endAvatarSession(avatar.current, data?.sessionId, console.log));
+    window.addEventListener("beforeunload", () =>
+      endAvatarSession(avatar.current, data?.sessionId, console.log)
+    );
     return () => {
-      window.removeEventListener("beforeunload", () => endAvatarSession(avatar.current, data?.sessionId, console.log));
+      window.removeEventListener("beforeunload", () =>
+        endAvatarSession(avatar.current, data?.sessionId, console.log)
+      );
     };
   }, [initialized]);
 
@@ -102,12 +130,14 @@ export default function StreamingAvatar() {
       setDisplayedQuestions([]);
       setInterviewCompleted(true);
       await handleSpeak("면접이 종료되었습니다. 수고하셨습니다.");
-      
+
       setTimeout(async () => {
         await endAvatarSession(avatar.current, data?.sessionId, console.log);
         // Redirect to the review page
         const qna = JSON.stringify(questionsAndAnswers);
-        window.location.href = `/reviewpage?qna=${encodeURIComponent(qna)}`;
+        window.location.href = `/reviewpage?qna=${encodeURIComponent(
+          qna
+        )}&title=${encodeURIComponent(essayTitle)}`;
       }, 5000); // 5-second delay
     }
   };
@@ -130,13 +160,18 @@ export default function StreamingAvatar() {
           </Button>
         </div>
       )}
-      <Card className={`overflow-hidden ${startClicked ? '' : 'blur-sm'}`}>
+      <Card className={`overflow-hidden ${startClicked ? "" : "blur-sm"}`}>
         <CardBody className="h-[500px] flex justify-center items-center">
           <div className="flex w-full justify-center gap-4">
             <div className="h-[400px] w-[550px] justify-center items-center flex rounded-lg overflow-hidden">
               {stream ? (
                 <div className="relative h-full w-full flex justify-center items-center">
-                  <video ref={mediaStream} autoPlay playsInline className="h-full w-auto object-cover">
+                  <video
+                    ref={mediaStream}
+                    autoPlay
+                    playsInline
+                    className="h-full w-auto object-cover"
+                  >
                     <track kind="captions" />
                   </video>
                 </div>
@@ -154,7 +189,14 @@ export default function StreamingAvatar() {
           {startClicked && (
             <>
               <div className="flex justify-center mb-4">
-                <Button onClick={isRecording ? handleStopRecording : handleStartRecording} className={`px-4 py-2 font-bold text-white rounded ${isRecording ? "bg-red-500" : "bg-blue-500"}`}>
+                <Button
+                  onClick={
+                    isRecording ? handleStopRecording : handleStartRecording
+                  }
+                  className={`px-4 py-2 font-bold text-white rounded ${
+                    isRecording ? "bg-red-500" : "bg-blue-500"
+                  }`}
+                >
                   {isRecording ? "Stop Recording" : "Start Recording"}
                 </Button>
               </div>
