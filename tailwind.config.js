@@ -19,7 +19,11 @@ module.exports = {
         placeHolder: "#A1A1A1",
         lightWhite: "#FCFCFC",
       },
+      fontFamily: {
+        pretendard: ['Pretendard-Regular', 'sans-serif'],
+      },
     },
   },
+  variants: {},
   plugins: [],
 };
