@@ -104,11 +104,14 @@ export default function StreamingAvatar() {
     } else {
       setDisplayedQuestions([]);
       setInterviewCompleted(true);
-      await handleSpeak("면접이 종료되었습니다");
-      await endAvatarSession(avatar.current, data?.sessionId, setDebug);
-      // Redirect to the review page
-      const qna = JSON.stringify(questionsAndAnswers);
-      window.location.href = `/reviewpage?qna=${encodeURIComponent(qna)}`;
+      await handleSpeak("면접이 종료되었습니다. 수고하셨습니다.");
+      
+      setTimeout(async () => {
+        await endAvatarSession(avatar.current, data?.sessionId, setDebug);
+        // Redirect to the review page
+        const qna = JSON.stringify(questionsAndAnswers);
+        window.location.href = `/reviewpage?qna=${encodeURIComponent(qna)}`;
+      }, 5000); // 5-second delay
     }
   };  
 
