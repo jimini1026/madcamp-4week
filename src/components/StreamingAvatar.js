@@ -1,32 +1,25 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import {
-  Button,
-  Card,
-  CardBody,
-  CardFooter,
-  Divider,
-  Spinner,
-} from "@nextui-org/react";
+import { Button, Card, CardBody, CardFooter, Divider, Spinner } from "@nextui-org/react";
+import Image from "next/image"; // import next/image
 import { fetchAccessToken } from "../utils/api";
-import {
-  initializeAvatar,
-  startAvatarSession,
-  endAvatarSession,
-  speakAvatar,
-} from "../utils/AvatarControl";
+import { initializeAvatar, startAvatarSession, endAvatarSession, speakAvatar } from "../utils/AvatarControl";
 import { startRecording, stopRecording } from "../utils/RecordingControl";
 import { initialQuestionsAndAnswers } from "../data/InterviewQuestions";
 import FaceDetection from "../components/FaceDetection"; // Adjust the import path if necessary
 
-export default function StreamingAvatar({ essayTitle }) {
+export default function StreamingAvatar() {
   const [isLoadingSession, setIsLoadingSession] = useState(true);
   const [isLoadingRepeat, setIsLoadingRepeat] = useState(false);
   const [stream, setStream] = useState(null);
   const [data, setData] = useState(null);
   const [initialized, setInitialized] = useState(false);
   const [startClicked, setStartClicked] = useState(false);
+  const [avatarReady, setAvatarReady] = useState(false);
+  const [showSubtitles, setShowSubtitles] = useState(false);
+  const [currentQuestion, setCurrentQuestion] = useState("");
+
   const mediaStream = useRef(null);
   const avatar = useRef(null);
 
@@ -38,25 +31,19 @@ export default function StreamingAvatar({ essayTitle }) {
   const [audioURL, setAudioURL] = useState("");
   const [error, setError] = useState("");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [questionsAndAnswers, setQuestionsAndAnswers] = useState(
-    initialQuestionsAndAnswers
-  );
+  const [questionsAndAnswers, setQuestionsAndAnswers] = useState(initialQuestionsAndAnswers);
   const [displayedQuestions, setDisplayedQuestions] = useState([]);
   const [interviewCompleted, setInterviewCompleted] = useState(false);
 
   const handleSpeak = async (textToSpeak) => {
     setIsLoadingRepeat(true);
+    setCurrentQuestion(textToSpeak);
     if (!initialized || !avatar.current) {
       console.log("Avatar API is not initialized");
       setIsLoadingRepeat(false);
       return;
     }
-    await speakAvatar(
-      avatar.current,
-      textToSpeak,
-      data?.sessionId,
-      console.log
-    );
+    await speakAvatar(avatar.current, textToSpeak, data?.sessionId, console.log);
     setIsLoadingRepeat(false);
   };
 
@@ -65,12 +52,7 @@ export default function StreamingAvatar({ essayTitle }) {
       const newToken = await fetchAccessToken();
       avatar.current = await initializeAvatar(newToken);
       setInitialized(true);
-      const res = await startAvatarSession(
-        avatar.current,
-        defaultAvatarId,
-        defaultVoiceId,
-        console.log
-      );
+      const res = await startAvatarSession(avatar.current, defaultAvatarId, defaultVoiceId, console.log);
       setData(res);
       setStream(avatar.current.mediaStream);
     }
@@ -87,18 +69,15 @@ export default function StreamingAvatar({ essayTitle }) {
       mediaStream.current.onloadedmetadata = () => {
         mediaStream.current.play();
         console.log("Playing");
+        setAvatarReady(true); // Avatar is ready to play
       };
     }
   }, [stream]);
 
   useEffect(() => {
-    window.addEventListener("beforeunload", () =>
-      endAvatarSession(avatar.current, data?.sessionId, console.log)
-    );
+    window.addEventListener("beforeunload", () => endAvatarSession(avatar.current, data?.sessionId, console.log));
     return () => {
-      window.removeEventListener("beforeunload", () =>
-        endAvatarSession(avatar.current, data?.sessionId, console.log)
-      );
+      window.removeEventListener("beforeunload", () => endAvatarSession(avatar.current, data?.sessionId, console.log));
     };
   }, [initialized]);
 
@@ -130,14 +109,12 @@ export default function StreamingAvatar({ essayTitle }) {
       setDisplayedQuestions([]);
       setInterviewCompleted(true);
       await handleSpeak("면접이 종료되었습니다. 수고하셨습니다.");
-
+      
       setTimeout(async () => {
         await endAvatarSession(avatar.current, data?.sessionId, console.log);
         // Redirect to the review page
         const qna = JSON.stringify(questionsAndAnswers);
-        window.location.href = `/reviewpage?qna=${encodeURIComponent(
-          qna
-        )}&title=${encodeURIComponent(essayTitle)}`;
+        window.location.href = `/reviewpage?qna=${encodeURIComponent(qna)}`;
       }, 5000); // 5-second delay
     }
   };
@@ -152,35 +129,40 @@ export default function StreamingAvatar({ essayTitle }) {
   };
 
   return (
-    <div className="w-full flex flex-col gap-4 overflow-hidden relative">
+    <div className="h-[40.5rem] w-full flex flex-col gap-4 overflow-hidden relative">
       {!startClicked && (
-        <div className="absolute inset-0 z-10 flex justify-center items-center bg-gray-800 bg-opacity-50">
-          <Button onClick={startInterview} className="bg-green-500 text-white">
-            Start Interview
-          </Button>
+        <div className="absolute inset-0 z-20 flex justify-center items-center bg-gray-800 bg-opacity-50">
+          {avatarReady ? (
+            <Button onClick={startInterview} className="bg-green-500 text-white">
+              시작하기
+            </Button>
+          ) : (
+            <div className="text-white text-2xl">준비 중...</div>
+          )}
         </div>
       )}
-      <Card className={`overflow-hidden ${startClicked ? "" : "blur-sm"}`}>
-        <CardBody className="h-[500px] flex justify-center items-center">
-          <div className="flex w-full justify-center gap-4">
-            <div className="h-[400px] w-[550px] justify-center items-center flex rounded-lg overflow-hidden">
+      <div className={`w-full h-full absolute inset-0 ${startClicked ? '' : 'blur-sm'}`} style={{ zIndex: startClicked ? -1 : 10 }}></div>
+      <Card className="overflow-hidden">
+        <CardBody className="h-[500px] flex justify-center items-center overflow-hidden">
+          <div className="flex w-full justify-center gap-4 overflow-hidden">
+            <div className="h-[400px] w-[550px] flex items-center justify-center rounded-lg overflow-hidden relative">
               {stream ? (
-                <div className="relative h-full w-full flex justify-center items-center">
-                  <video
-                    ref={mediaStream}
-                    autoPlay
-                    playsInline
-                    className="h-full w-auto object-cover"
-                  >
+                <div className="relative h-full w-full flex justify-center items-center overflow-hidden">
+                  <video ref={mediaStream} autoPlay playsInline className="h-full w-auto object-cover">
                     <track kind="captions" />
                   </video>
+                  {showSubtitles && (
+                    <div className="absolute bottom-4 bg-black bg-opacity-50 text-white p-2 rounded">
+                      {currentQuestion}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <Spinner size="lg" color="default" />
               )}
             </div>
-            <div className="h-[500px] w-[450px]">
-              <FaceDetection width="450px" height="500px" />
+            <div className="h-[400px] w-[550px] flex items-center justify-center overflow-hidden rounded-lg">
+              <FaceDetection width="550px" height="400px" />
             </div>
           </div>
         </CardBody>
@@ -188,49 +170,20 @@ export default function StreamingAvatar({ essayTitle }) {
         <CardFooter className="flex flex-col gap-3">
           {startClicked && (
             <>
-              <div className="flex justify-center mb-4">
-                <Button
-                  onClick={
-                    isRecording ? handleStopRecording : handleStartRecording
-                  }
-                  className={`px-4 py-2 font-bold text-white rounded ${
-                    isRecording ? "bg-red-500" : "bg-blue-500"
-                  }`}
-                >
-                  {isRecording ? "Stop Recording" : "Start Recording"}
-                </Button>
+              <div className="flex justify-center items-center gap-4 mb-4">
+                <div onClick={() => setShowSubtitles(!showSubtitles)} className="flex flex-col items-center cursor-pointer">
+                  <Image src="/assets/subtitle.png" alt="자막 보기" width={40} height={40} />
+                  <span className="text-white">자막 보기</span>
+                </div>
+                <div onClick={isRecording ? handleStopRecording : handleStartRecording} className="flex flex-col items-center cursor-pointer">
+                  <Image src={isRecording ? "/assets/rec.png" : "/assets/bf_rec.png"} alt="Start Recording" width={40} height={40} />
+                  <span className="text-white">{isRecording ? "녹음 중" : "녹음 시작"}</span>
+                </div>
               </div>
-              {audioURL && (
-                <div className="mt-4">
-                  <h2 className="text-xl font-bold mb-2">Recorded Audio:</h2>
-                  <audio src={audioURL} controls />
-                </div>
-              )}
-              {error && (
-                <div className="mt-4 text-red-500">
-                  <h2 className="text-xl font-bold mb-2">Error:</h2>
-                  <p>{error}</p>
-                </div>
-              )}
             </>
           )}
         </CardFooter>
       </Card>
-      <div className="mt-4">
-        {interviewCompleted ? (
-          <>
-            <h2 className="text-xl font-bold mb-2">면접이 종료되었습니다</h2>
-          </>
-        ) : (
-          <div className="mb-4">
-            {displayedQuestions.length > 0 && (
-              <p>
-                <strong>Question:</strong> {displayedQuestions[0]}
-              </p>
-            )}
-          </div>
-        )}
-      </div>
     </div>
   );
 }
