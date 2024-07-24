@@ -2,13 +2,30 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Button, Card, CardBody, CardFooter, Divider, Spinner, Input } from "@nextui-org/react";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  Divider,
+  Spinner,
+  Input,
+} from "@nextui-org/react";
 import { fetchAccessToken } from "../utils/api";
-import { initializeAvatar, startAvatarSession, endAvatarSession, interruptAvatarSession, speakAvatar } from "../utils/AvatarControl";
+import {
+  initializeAvatar,
+  startAvatarSession,
+  endAvatarSession,
+  interruptAvatarSession,
+  speakAvatar,
+} from "../utils/AvatarControl";
 import { startRecording, stopRecording } from "../utils/RecordingControl";
 import { initialQuestionsAndAnswers } from "../data/InterviewQuestions";
 
-export default function StreamingAvatar() {
+export default function StreamingAvatar({ essayTitle }) {
+  useEffect(() => {
+    console.log(essayTitle);
+  }, [essayTitle]);
   const [isLoadingSession, setIsLoadingSession] = useState(true);
   const [isLoadingRepeat, setIsLoadingRepeat] = useState(false);
   const [stream, setStream] = useState(null);
@@ -28,7 +45,9 @@ export default function StreamingAvatar() {
   const [textInput, setTextInput] = useState("");
   const [recognizedText, setRecognizedText] = useState("");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [questionsAndAnswers, setQuestionsAndAnswers] = useState(initialQuestionsAndAnswers);
+  const [questionsAndAnswers, setQuestionsAndAnswers] = useState(
+    initialQuestionsAndAnswers
+  );
   const [displayedQuestions, setDisplayedQuestions] = useState([]);
   const [interviewCompleted, setInterviewCompleted] = useState(false);
 
@@ -48,7 +67,12 @@ export default function StreamingAvatar() {
       const newToken = await fetchAccessToken();
       avatar.current = await initializeAvatar(newToken);
       setInitialized(true);
-      const res = await startAvatarSession(avatar.current, defaultAvatarId, defaultVoiceId, setDebug);
+      const res = await startAvatarSession(
+        avatar.current,
+        defaultAvatarId,
+        defaultVoiceId,
+        setDebug
+      );
       setData(res);
       setStream(avatar.current.mediaStream);
     }
@@ -70,9 +94,13 @@ export default function StreamingAvatar() {
   }, [stream]);
 
   useEffect(() => {
-    window.addEventListener("beforeunload", () => endAvatarSession(avatar.current, data?.sessionId, setDebug));
+    window.addEventListener("beforeunload", () =>
+      endAvatarSession(avatar.current, data?.sessionId, setDebug)
+    );
     return () => {
-      window.removeEventListener("beforeunload", () => endAvatarSession(avatar.current, data?.sessionId, setDebug));
+      window.removeEventListener("beforeunload", () =>
+        endAvatarSession(avatar.current, data?.sessionId, setDebug)
+      );
     };
   }, [initialized]);
 
@@ -105,15 +133,17 @@ export default function StreamingAvatar() {
       setDisplayedQuestions([]);
       setInterviewCompleted(true);
       await handleSpeak("면접이 종료되었습니다. 수고하셨습니다.");
-      
+
       setTimeout(async () => {
         await endAvatarSession(avatar.current, data?.sessionId, setDebug);
         // Redirect to the review page
         const qna = JSON.stringify(questionsAndAnswers);
-        window.location.href = `/reviewpage?qna=${encodeURIComponent(qna)}`;
+        window.location.href = `/reviewpage?qna=${encodeURIComponent(
+          qna
+        )}&title=${encodeURIComponent(essayTitle)}`;
       }, 5000); // 5-second delay
     }
-  };  
+  };
 
   const handleTextSubmit = async (text) => {
     if (text.trim() === "") return;
@@ -140,14 +170,37 @@ export default function StreamingAvatar() {
         <CardBody className="h-[500px] flex flex-col justify-center items-center">
           {stream ? (
             <div className="h-[500px] w-[900px] justify-center items-center flex rounded-lg overflow-hidden">
-              <video ref={mediaStream} autoPlay playsInline style={{ width: "100%", height: "100%", objectFit: "contain" }}>
+              <video
+                ref={mediaStream}
+                autoPlay
+                playsInline
+                style={{ width: "100%", height: "100%", objectFit: "contain" }}
+              >
                 <track kind="captions" />
               </video>
               <div className="flex flex-col gap-2 absolute bottom-3 right-3">
-                <Button size="md" onClick={() => interruptAvatarSession(avatar.current, data.sessionId, setDebug)} className="bg-gradient-to-tr from-indigo-500 to-indigo-300 text-white rounded-lg" variant="shadow">
+                <Button
+                  size="md"
+                  onClick={() =>
+                    interruptAvatarSession(
+                      avatar.current,
+                      data.sessionId,
+                      setDebug
+                    )
+                  }
+                  className="bg-gradient-to-tr from-indigo-500 to-indigo-300 text-white rounded-lg"
+                  variant="shadow"
+                >
                   Interrupt task
                 </Button>
-                <Button size="md" onClick={() => endAvatarSession(avatar.current, data.sessionId, setDebug)} className="bg-gradient-to-tr from-indigo-500 to-indigo-300 text-white rounded-lg" variant="shadow">
+                <Button
+                  size="md"
+                  onClick={() =>
+                    endAvatarSession(avatar.current, data.sessionId, setDebug)
+                  }
+                  className="bg-gradient-to-tr from-indigo-500 to-indigo-300 text-white rounded-lg"
+                  variant="shadow"
+                >
                   End session
                 </Button>
               </div>
@@ -159,12 +212,20 @@ export default function StreamingAvatar() {
         <Divider />
         <CardFooter className="flex flex-col gap-3">
           <div className="flex justify-center mb-4">
-            <Button onClick={startInterview} className="bg-green-500 text-white">
+            <Button
+              onClick={startInterview}
+              className="bg-green-500 text-white"
+            >
               Start Interview
             </Button>
           </div>
           <div className="flex justify-center mb-4">
-            <Button onClick={isRecording ? handleStopRecording : handleStartRecording} className={`px-4 py-2 font-bold text-white rounded ${isRecording ? "bg-red-500" : "bg-blue-500"}`}>
+            <Button
+              onClick={isRecording ? handleStopRecording : handleStartRecording}
+              className={`px-4 py-2 font-bold text-white rounded ${
+                isRecording ? "bg-red-500" : "bg-blue-500"
+              }`}
+            >
               {isRecording ? "Stop Recording" : "Start Recording"}
             </Button>
           </div>
@@ -181,8 +242,18 @@ export default function StreamingAvatar() {
             </div>
           )}
           <div className="flex flex-col gap-3">
-            <Input fullWidth clearable underlined labelPlaceholder="Type your message" value={textInput} onChange={(e) => setTextInput(e.target.value)} />
-            <Button onClick={() => handleTextSubmit(textInput)} className="bg-blue-500 text-white">
+            <Input
+              fullWidth
+              clearable
+              underlined
+              labelPlaceholder="Type your message"
+              value={textInput}
+              onChange={(e) => setTextInput(e.target.value)}
+            />
+            <Button
+              onClick={() => handleTextSubmit(textInput)}
+              className="bg-blue-500 text-white"
+            >
               Send to Avatar
             </Button>
           </div>

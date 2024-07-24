@@ -12,15 +12,28 @@ const ReviewPage = () => {
   const [showFeedback, setShowFeedback] = useState({});
   const [totalScore, setTotalScore] = useState(0);
   const [grade, setGrade] = useState("");
+  const [essayTitle, setEssayTitle] = useState("");
 
   useEffect(() => {
     const qnaParam = searchParams.get("qna");
+    const title = searchParams.get("title");
     if (qnaParam) {
       const parsedQnA = JSON.parse(decodeURIComponent(qnaParam));
       setQuestionsAndAnswers(parsedQnA);
       fetchFeedbacks(parsedQnA);
     }
+    if (title) {
+      setEssayTitle(decodeURIComponent(title));
+    } else {
+      console.error("Title is not defined in query params");
+    }
   }, [searchParams]);
+
+  useEffect(() => {
+    if (essayTitle) {
+      console.log("Essay Title:", essayTitle);
+    }
+  }, [essayTitle]);
 
   const fetchFeedbacks = async (parsedQnA) => {
     try {
