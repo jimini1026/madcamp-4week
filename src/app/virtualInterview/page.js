@@ -59,7 +59,7 @@ export default function VirtualInterview() {
         },
         body: JSON.stringify({
           content: selectedEssay.content,
-          numQuestions: 5,
+          numQuestions: 3,
         }), // 요청 시 문제의 수를 지정
       });
       const questionsData = await response.json();
