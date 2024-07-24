@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Button, Card, CardBody, CardFooter, Divider, Spinner } from "@nextui-org/react";
+import Image from "next/image"; // import next/image
 import { fetchAccessToken } from "../utils/api";
 import { initializeAvatar, startAvatarSession, endAvatarSession, speakAvatar } from "../utils/AvatarControl";
 import { startRecording, stopRecording } from "../utils/RecordingControl";
@@ -128,9 +129,9 @@ export default function StreamingAvatar() {
   };
 
   return (
-    <div className="w-full flex flex-col gap-4 overflow-hidden relative">
+    <div className="h-[40.5rem] w-full flex flex-col gap-4 overflow-hidden relative">
       {!startClicked && (
-        <div className="absolute inset-0 z-10 flex justify-center items-center bg-gray-800 bg-opacity-50">
+        <div className="absolute inset-0 z-20 flex justify-center items-center bg-gray-800 bg-opacity-50">
           {avatarReady ? (
             <Button onClick={startInterview} className="bg-green-500 text-white">
               시작하기
@@ -140,12 +141,13 @@ export default function StreamingAvatar() {
           )}
         </div>
       )}
-      <Card className={`overflow-hidden ${startClicked ? '' : 'blur-sm'}`}>
-        <CardBody className="h-[500px] flex justify-center items-center">
-          <div className="flex w-full justify-center gap-4">
+      <div className={`w-full h-full absolute inset-0 ${startClicked ? '' : 'blur-sm'}`} style={{ zIndex: startClicked ? -1 : 10 }}></div>
+      <Card className="overflow-hidden">
+        <CardBody className="h-[500px] flex justify-center items-center overflow-hidden">
+          <div className="flex w-full justify-center gap-4 overflow-hidden">
             <div className="h-[400px] w-[550px] flex items-center justify-center rounded-lg overflow-hidden relative">
               {stream ? (
-                <div className="relative h-full w-full flex justify-center items-center">
+                <div className="relative h-full w-full flex justify-center items-center overflow-hidden">
                   <video ref={mediaStream} autoPlay playsInline className="h-full w-auto object-cover">
                     <track kind="captions" />
                   </video>
@@ -159,8 +161,8 @@ export default function StreamingAvatar() {
                 <Spinner size="lg" color="default" />
               )}
             </div>
-            <div className="h-[500px] w-[450px] flex items-center justify-center">
-              <FaceDetection width="450px" height="500px" />
+            <div className="h-[400px] w-[550px] flex items-center justify-center overflow-hidden rounded-lg">
+              <FaceDetection width="550px" height="400px" />
             </div>
           </div>
         </CardBody>
@@ -168,47 +170,20 @@ export default function StreamingAvatar() {
         <CardFooter className="flex flex-col gap-3">
           {startClicked && (
             <>
-              <div className="flex justify-center mb-4">
-                <Button onClick={() => setShowSubtitles(!showSubtitles)} className="px-4 py-2 font-bold text-white rounded bg-blue-500">
-                  {showSubtitles ? "자막 감추기" : "자막 보기"}
-                </Button>
-              </div>
-              <div className="flex justify-center mb-4">
-                <Button onClick={isRecording ? handleStopRecording : handleStartRecording} className={`px-4 py-2 font-bold text-white rounded ${isRecording ? "bg-red-500" : "bg-blue-500"}`}>
-                  {isRecording ? "Stop Recording" : "Start Recording"}
-                </Button>
-              </div>
-              {audioURL && (
-                <div className="mt-4">
-                  <h2 className="text-xl font-bold mb-2">Recorded Audio:</h2>
-                  <audio src={audioURL} controls />
+              <div className="flex justify-center items-center gap-4 mb-4">
+                <div onClick={() => setShowSubtitles(!showSubtitles)} className="flex flex-col items-center cursor-pointer">
+                  <Image src="/assets/subtitle.png" alt="자막 보기" width={40} height={40} />
+                  <span className="text-white">자막 보기</span>
                 </div>
-              )}
-              {error && (
-                <div className="mt-4 text-red-500">
-                  <h2 className="text-xl font-bold mb-2">Error:</h2>
-                  <p>{error}</p>
+                <div onClick={isRecording ? handleStopRecording : handleStartRecording} className="flex flex-col items-center cursor-pointer">
+                  <Image src={isRecording ? "/assets/rec.png" : "/assets/bf_rec.png"} alt="Start Recording" width={40} height={40} />
+                  <span className="text-white">{isRecording ? "녹음 중" : "녹음 시작"}</span>
                 </div>
-              )}
+              </div>
             </>
           )}
         </CardFooter>
       </Card>
-      <div className="mt-4">
-        {interviewCompleted ? (
-          <>
-            <h2 className="text-xl font-bold mb-2">면접이 종료되었습니다</h2>
-          </>
-        ) : (
-          <div className="mb-4">
-            {displayedQuestions.length > 0 && (
-              <p>
-                <strong>Question:</strong> {displayedQuestions[0]}
-              </p>
-            )}
-          </div>
-        )}
-      </div>
     </div>
   );
 }

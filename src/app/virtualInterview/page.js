@@ -54,6 +54,7 @@ export default function VirtualInterview() {
     if (selectedEssayIndex !== null) {
       setLoading(true);
       const selectedEssay = essays[selectedEssayIndex];
+      console.log(selectedEssay);
       const response = await fetch("/api/generateQuestions", {
         method: "POST",
         headers: {
@@ -77,8 +78,9 @@ export default function VirtualInterview() {
         });
 
         if (saveResponse.ok) {
-          setLoading(false);
-          router.push("/streamingavatar");
+          router.push(
+            `/streamingavatar?title=${encodeURIComponent(selectedEssay.title)}`
+          );
         } else {
           setLoading(false);
           console.error("Failed to save questions");
