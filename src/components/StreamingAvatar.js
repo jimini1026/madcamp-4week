@@ -4,9 +4,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Button, Card, CardBody, CardFooter, Divider, Spinner, Input } from "@nextui-org/react";
 import { fetchAccessToken } from "../utils/api";
-import { initializeAvatar, startAvatarSession, endAvatarSession, interruptAvatarSession, speakAvatar } from "../utils/AvatarControl";
+import { initializeAvatar, startAvatarSession, endAvatarSession, speakAvatar } from "../utils/AvatarControl";
 import { startRecording, stopRecording } from "../utils/RecordingControl";
 import { initialQuestionsAndAnswers } from "../data/InterviewQuestions";
+import FaceDetection from "../components/FaceDetection"; // Adjust the import path if necessary
 
 export default function StreamingAvatar() {
   const [isLoadingSession, setIsLoadingSession] = useState(true);
@@ -135,26 +136,25 @@ export default function StreamingAvatar() {
   };
 
   return (
-    <div className="w-full flex flex-col gap-4">
-      <Card>
-        <CardBody className="h-[500px] flex flex-col justify-center items-center">
-          {stream ? (
-            <div className="h-[500px] w-[900px] justify-center items-center flex rounded-lg overflow-hidden">
-              <video ref={mediaStream} autoPlay playsInline style={{ width: "100%", height: "100%", objectFit: "contain" }}>
-                <track kind="captions" />
-              </video>
-              <div className="flex flex-col gap-2 absolute bottom-3 right-3">
-                <Button size="md" onClick={() => interruptAvatarSession(avatar.current, data.sessionId, setDebug)} className="bg-gradient-to-tr from-indigo-500 to-indigo-300 text-white rounded-lg" variant="shadow">
-                  Interrupt task
-                </Button>
-                <Button size="md" onClick={() => endAvatarSession(avatar.current, data.sessionId, setDebug)} className="bg-gradient-to-tr from-indigo-500 to-indigo-300 text-white rounded-lg" variant="shadow">
-                  End session
-                </Button>
-              </div>
+    <div className="w-full flex flex-col gap-4 overflow-hidden">
+      <Card className="overflow-hidden">
+        <CardBody className="h-[500px] flex justify-center items-center">
+          <div className="flex w-full justify-center gap-4">
+            <div className="h-[500px] w-[450px] justify-center items-center flex rounded-lg overflow-hidden">
+              {stream ? (
+                <div className="relative h-full w-full">
+                  <video ref={mediaStream} autoPlay playsInline className="absolute top-0 left-0 h-full w-full object-cover">
+                    <track kind="captions" />
+                  </video>
+                </div>
+              ) : (
+                <Spinner size="lg" color="default" />
+              )}
             </div>
-          ) : (
-            <Spinner size="lg" color="default" />
-          )}
+            <div className="h-[500px] w-[450px]">
+              <FaceDetection width="450px" height="500px" />
+            </div>
+          </div>
         </CardBody>
         <Divider />
         <CardFooter className="flex flex-col gap-3">
