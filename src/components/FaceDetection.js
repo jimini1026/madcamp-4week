@@ -1,11 +1,10 @@
-// src/components/FaceDetection.js
 "use client";
 
 import React, { useRef, useEffect, useState } from "react";
 import * as faceapi from "face-api.js";
 import Webcam from "react-webcam";
 
-const FaceDetection = ({ width = "100%", height = "100%" }) => {
+const FaceDetection = ({ width, height }) => {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
   const [feedback, setFeedback] = useState("");
@@ -37,6 +36,11 @@ const FaceDetection = ({ width = "100%", height = "100%" }) => {
           .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
           .withFaceLandmarks()
           .withFaceExpressions();
+
+        if (!detections || detections.length === 0) {
+          setFeedback("No faces detected");
+          return;
+        }
 
         const resizedDetections = faceapi.resizeResults(detections, displaySize);
 
@@ -96,7 +100,6 @@ const FaceDetection = ({ width = "100%", height = "100%" }) => {
           width,
           height,
           zIndex: 8,
-          //opacity: 0.9, // 웹캠 투명도 조절
         }}
       />
       <canvas
@@ -110,6 +113,20 @@ const FaceDetection = ({ width = "100%", height = "100%" }) => {
           zIndex: 9,
         }}
       />
+      <div
+        style={{
+          position: "absolute",
+          bottom: 10,
+          left: 10,
+          zIndex: 10,
+          color: "white",
+          background: "rgba(0, 0, 0, 0.5)",
+          padding: "10px",
+          borderRadius: "5px",
+        }}
+      >
+        {feedback}
+      </div>
     </div>
   );
 };
