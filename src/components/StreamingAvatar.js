@@ -1,15 +1,27 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Button, Card, CardBody, CardFooter, Divider, Spinner } from "@nextui-org/react";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  Divider,
+  Spinner,
+} from "@nextui-org/react";
 import Image from "next/image"; // import next/image
 import { fetchAccessToken } from "../utils/api";
-import { initializeAvatar, startAvatarSession, endAvatarSession, speakAvatar } from "../utils/AvatarControl";
+import {
+  initializeAvatar,
+  startAvatarSession,
+  endAvatarSession,
+  speakAvatar,
+} from "../utils/AvatarControl";
 import { startRecording, stopRecording } from "../utils/RecordingControl";
 import { initialQuestionsAndAnswers } from "../data/InterviewQuestions";
 import FaceDetection from "../components/FaceDetection"; // Adjust the import path if necessary
 
-export default function StreamingAvatar() {
+export default function StreamingAvatar({ essayTitle }) {
   const [isLoadingSession, setIsLoadingSession] = useState(true);
   const [isLoadingRepeat, setIsLoadingRepeat] = useState(false);
   const [stream, setStream] = useState(null);
@@ -25,7 +37,10 @@ export default function StreamingAvatar() {
   const cameraStreamRef = useRef(null);
 
   const avatarIds = ["Wayne_20240711", "josh_lite3_20230714"];
-  const voiceIds = ["26b2064088674c80b1e5fc5ab1a068ea", "433c48a6c8944d89b3b76d2ddcc7176a"];
+  const voiceIds = [
+    "26b2064088674c80b1e5fc5ab1a068ea",
+    "433c48a6c8944d89b3b76d2ddcc7176a",
+  ];
 
   const getRandomElement = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
@@ -34,7 +49,9 @@ export default function StreamingAvatar() {
   const [audioURL, setAudioURL] = useState("");
   const [error, setError] = useState("");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [questionsAndAnswers, setQuestionsAndAnswers] = useState(initialQuestionsAndAnswers);
+  const [questionsAndAnswers, setQuestionsAndAnswers] = useState(
+    initialQuestionsAndAnswers
+  );
   const [displayedQuestions, setDisplayedQuestions] = useState([]);
   const [interviewCompleted, setInterviewCompleted] = useState(false);
 
@@ -46,7 +63,12 @@ export default function StreamingAvatar() {
       setIsLoadingRepeat(false);
       return;
     }
-    await speakAvatar(avatar.current, textToSpeak, data?.sessionId, console.log);
+    await speakAvatar(
+      avatar.current,
+      textToSpeak,
+      data?.sessionId,
+      console.log
+    );
     setIsLoadingRepeat(false);
   };
 
@@ -59,7 +81,12 @@ export default function StreamingAvatar() {
       const selectedAvatarId = getRandomElement(avatarIds);
       const selectedVoiceId = getRandomElement(voiceIds);
 
-      const res = await startAvatarSession(avatar.current, selectedAvatarId, selectedVoiceId, console.log);
+      const res = await startAvatarSession(
+        avatar.current,
+        selectedAvatarId,
+        selectedVoiceId,
+        console.log
+      );
       setData(res);
       setStream(avatar.current.mediaStream);
     }
@@ -84,7 +111,9 @@ export default function StreamingAvatar() {
   useEffect(() => {
     async function setupCamera() {
       try {
-        const cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const cameraStream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+        });
         cameraStreamRef.current.srcObject = cameraStream;
         cameraStreamRef.current.onloadedmetadata = () => {
           cameraStreamRef.current.play();
@@ -98,9 +127,13 @@ export default function StreamingAvatar() {
   }, []);
 
   useEffect(() => {
-    window.addEventListener("beforeunload", () => endAvatarSession(avatar.current, data?.sessionId, console.log));
+    window.addEventListener("beforeunload", () =>
+      endAvatarSession(avatar.current, data?.sessionId, console.log)
+    );
     return () => {
-      window.removeEventListener("beforeunload", () => endAvatarSession(avatar.current, data?.sessionId, console.log));
+      window.removeEventListener("beforeunload", () =>
+        endAvatarSession(avatar.current, data?.sessionId, console.log)
+      );
     };
   }, [initialized]);
 
@@ -132,12 +165,14 @@ export default function StreamingAvatar() {
       setDisplayedQuestions([]);
       setInterviewCompleted(true);
       await handleSpeak("면접이 종료되었습니다. 수고하셨습니다.");
-      
+
       setTimeout(async () => {
         await endAvatarSession(avatar.current, data?.sessionId, console.log);
         // Redirect to the review page
         const qna = JSON.stringify(questionsAndAnswers);
-        window.location.href = `/reviewpage?qna=${encodeURIComponent(qna)}`;
+        window.location.href = `/reviewpage?qna=${encodeURIComponent(
+          qna
+        )}&title=${encodeURIComponent(essayTitle)}`;
       }, 5000); // 5-second delay
     }
   };
@@ -157,11 +192,11 @@ export default function StreamingAvatar() {
       {!startClicked && (
         <div className="absolute inset-0 z-20 flex justify-center items-center bg-gray-800 bg-opacity-50">
           {avatarReady ? (
-            <Button 
-            onClick={startInterview} 
-            className="bg-transparent text-white border-2 border-white rounded-md"
+            <Button
+              onClick={startInterview}
+              className="bg-transparent text-white border-2 border-white rounded-md"
             >
-            시작하기
+              시작하기
             </Button>
           ) : (
             <div className="text-white text-2xl">
@@ -170,14 +205,24 @@ export default function StreamingAvatar() {
           )}
         </div>
       )}
-      <div className={`w-full h-full absolute inset-0 ${startClicked ? '' : 'blur-sm'}`} style={{ zIndex: startClicked ? -1 : 10 }}></div>
+      <div
+        className={`w-full h-full absolute inset-0 ${
+          startClicked ? "" : "blur-sm"
+        }`}
+        style={{ zIndex: startClicked ? -1 : 10 }}
+      ></div>
       <Card className="overflow-hidden">
         <CardBody className="h-[500px] flex justify-center items-center overflow-hidden">
           <div className="flex w-full justify-center gap-4 overflow-hidden">
             <div className="h-[400px] w-[550px] flex items-center justify-center overflow-hidden relative bg-black">
               {stream ? (
                 <div className="relative h-full w-full flex justify-center items-center overflow-hidden bg-black">
-                  <video ref={mediaStream} autoPlay playsInline className="h-full w-auto object-cover">
+                  <video
+                    ref={mediaStream}
+                    autoPlay
+                    playsInline
+                    className="h-full w-auto object-cover"
+                  >
                     <track kind="captions" />
                   </video>
                   {showSubtitles && (
@@ -191,7 +236,12 @@ export default function StreamingAvatar() {
               )}
             </div>
             <div className="h-[400px] w-[550px] flex items-center justify-center overflow-hidden rounded-lg">
-              <video ref={cameraStreamRef} autoPlay playsInline className="h-full w-auto object-cover">
+              <video
+                ref={cameraStreamRef}
+                autoPlay
+                playsInline
+                className="h-full w-auto object-cover"
+              >
                 <track kind="captions" />
               </video>
             </div>
@@ -202,13 +252,33 @@ export default function StreamingAvatar() {
           {startClicked && (
             <>
               <div className="flex justify-center items-center gap-4 mb-4">
-                <div onClick={() => setShowSubtitles(!showSubtitles)} className="flex flex-col items-center cursor-pointer">
-                  <Image src="/assets/subtitle.png" alt="자막 보기" width={40} height={40} />
+                <div
+                  onClick={() => setShowSubtitles(!showSubtitles)}
+                  className="flex flex-col items-center cursor-pointer"
+                >
+                  <Image
+                    src="/assets/subtitle.png"
+                    alt="자막 보기"
+                    width={40}
+                    height={40}
+                  />
                   <span className="text-white">자막 보기</span>
                 </div>
-                <div onClick={isRecording ? handleStopRecording : handleStartRecording} className="flex flex-col items-center cursor-pointer">
-                  <Image src={isRecording ? "/assets/rec.png" : "/assets/bf_rec.png"} alt="Start Recording" width={40} height={40} />
-                  <span className="text-white">{isRecording ? "녹음 중" : "녹음 시작"}</span>
+                <div
+                  onClick={
+                    isRecording ? handleStopRecording : handleStartRecording
+                  }
+                  className="flex flex-col items-center cursor-pointer"
+                >
+                  <Image
+                    src={isRecording ? "/assets/rec.png" : "/assets/bf_rec.png"}
+                    alt="Start Recording"
+                    width={40}
+                    height={40}
+                  />
+                  <span className="text-white">
+                    {isRecording ? "녹음 중" : "녹음 시작"}
+                  </span>
                 </div>
               </div>
             </>
@@ -218,24 +288,24 @@ export default function StreamingAvatar() {
       <style jsx>{`
         @keyframes dot-animate {
           0% {
-            content: '';
+            content: "";
           }
           20% {
-            content: '.';
+            content: ".";
           }
           40% {
-            content: '..';
+            content: "..";
           }
           60% {
-            content: '...';
+            content: "...";
           }
           100% {
-            content: '';
+            content: "";
           }
         }
 
         .dot-animate:after {
-          content: '';
+          content: "";
           animation: dot-animate 2.5s infinite steps(1, end);
         }
       `}</style>

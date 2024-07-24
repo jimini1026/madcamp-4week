@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import Image from "next/image";
 import { IoPersonCircleSharp } from "react-icons/io5";
 import { useContext, useEffect, useState } from "react";
 import { Context } from "./appProvider";

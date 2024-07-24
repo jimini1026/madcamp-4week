@@ -7,7 +7,7 @@ import Image from "next/image";
 import { FaSearch } from "react-icons/fa";
 
 export default function SelfIntroduction() {
-  const { state, setState } = useContext(Context);
+  const { state } = useContext(Context);
   const [selfIntroductionData, setSelfIntroductionData] = useState([]);
   const [searchInput, setSearchInput] = useState("");
   const [filteredData, setFilteredData] = useState([]);

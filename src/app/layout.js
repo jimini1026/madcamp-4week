@@ -1,7 +1,5 @@
-import { useContext } from "react";
 import { Inter, Fira_Code as FontMono } from "next/font/google";
 import "./globals.css";
-import clsx from "clsx";
 import { Providers } from "./providers";
 import AppProvider from "./appProvider";
 import Navigation from "./navigation";

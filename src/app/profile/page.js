@@ -167,6 +167,27 @@ export default function Profile() {
           </div>
         </div>
         <hr />
+        <div className="py-5">
+          <div className="font-semibold text-lg pb-5">피드백 정보</div>
+          <div className="flex flex-wrap px-3">
+            <div className="w-full md:w-1/3 p-2 bg-red-100 flex justify-center items-center">
+              <div>피드백 리스트1</div>
+            </div>
+            <div className="w-full md:w-1/3 p-2 bg-red-100 flex justify-center items-center">
+              <div>피드백 리스트1</div>
+            </div>
+            <div className="w-full md:w-1/3 p-2 bg-red-100 flex justify-center items-center">
+              <div>피드백 리스트1</div>
+            </div>
+            <div className="w-full md:w-1/3 p-2 bg-red-100 flex justify-center items-center">
+              <div>피드백 리스트1</div>
+            </div>
+            <div className="w-full md:w-1/3 p-2 bg-red-100 flex justify-center items-center">
+              <div>피드백 리스트1</div>
+            </div>
+          </div>
+        </div>
+        <hr />
         <div>
           <div className="mt-5 flex gap-3 float-left">
             <button
