@@ -44,11 +44,10 @@ const FaceDetection = ({ width, height }) => {
 
         const resizedDetections = faceapi.resizeResults(detections, displaySize);
 
-        canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
-
-        faceapi.draw.drawDetections(canvas, resizedDetections);
-        faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
-        faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+        // 얼굴 감지 결과를 캔버스에 그리지 않음
+        // faceapi.draw.drawDetections(canvas, resizedDetections);
+        // faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+        // faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
 
         if (resizedDetections.length > 0) {
           const expressions = resizedDetections[0].expressions;
@@ -116,8 +115,9 @@ const FaceDetection = ({ width, height }) => {
       <div
         style={{
           position: "absolute",
-          bottom: 10,
+          bottom: 0,
           left: 10,
+          width: "530px",
           zIndex: 10,
           color: "white",
           background: "rgba(0, 0, 0, 0.5)",
