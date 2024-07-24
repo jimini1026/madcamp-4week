@@ -44,7 +44,7 @@ export default function VirtualInterview() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ content: selectedEssay.content, numQuestions: 5 }), // 요청 시 문제의 수를 지정
+        body: JSON.stringify({ content: selectedEssay.content, numQuestions: 3 }), // 요청 시 문제의 수를 지정
       });
       const questionsData = await response.json();
 
@@ -101,7 +101,7 @@ export default function VirtualInterview() {
         <div className="flex justify-center mt-6">
           <button
             onClick={handleNavigate}
-            className="px-4 py-2 font-bold text-white bg-green-500 rounded"
+            className="px-4 py-2 font-bold text-white bg-customBlue rounded"
           >
             면접 보러 가기
           </button>
