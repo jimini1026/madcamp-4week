@@ -2,11 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { Context } from "./appProvider";
 
 export default function Home() {
-  const { state, setState } = useContext(Context);
+  const { state } = useContext(Context);
 
   return (
     <div className="relative h-screen overflow-hidden">

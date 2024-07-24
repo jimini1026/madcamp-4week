@@ -2,12 +2,12 @@
 
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import Link from "next/link";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { Context } from "../appProvider";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
-  const { state, setState } = useContext(Context);
+  const { setState } = useContext(Context);
 
   const [loginInfo, setLoginInfo] = useState({
     email: "",
