@@ -312,11 +312,49 @@ export default function Profile() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-lg w-[40rem] h-[39rem] px-10 py-5"
+            className=" rounded-lg w-[40rem] h-[39rem] px-10 py-5"
+            style={{ backgroundColor: "#F8FAFF" }}
           >
-            <div className="font-bold text-2xl">모의 면접 피드백</div>
-            <div>{modalData.title}</div>
-            <div></div>
+            <div className="font-bold text-2xl" style={{ color: "#5C8BF2" }}>
+              Feedback Management
+            </div>
+            <hr className="border-black my-3" />
+            <div className="font-semibold text-lg flex pt-2 pb-5">
+              <div>"{modalData.title}"</div>
+              <div className="text-customGray text-base pt-1">
+                &nbsp;의 모의면접 피드백 결과
+              </div>
+            </div>
+            <div className="flex flex-col gap-5 overflow-y-auto h-[28rem] pr-3">
+              {modalData.feedbackResult.map((data, index) => {
+                return (
+                  <div key={index}>
+                    <div className="text-sm font-semibold">
+                      <span className="font-bold text-lg text-red-500">
+                        Q{index + 1}.
+                      </span>
+                      &nbsp;{modalData.QnA[index].question}
+                    </div>
+                    <div className="text-sm font-semibold py-3">
+                      <span className="font-bold text-lg">A{index + 1}.</span>
+                      &nbsp;
+                      {modalData.QnA[index].answer}
+                    </div>
+                    <div className="font-semibold text-sm flex flex-col gap-1">
+                      <div>
+                        <div>Feedback.</div>
+                        <div>{data.feedback}</div>
+                      </div>
+                      <div>
+                        <div className="text-blue-600">Improvement.</div>
+                        <div>{data.improvement}</div>
+                      </div>
+                    </div>
+                    <hr className="mt-4 border-customGray" />
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       ) : null}
