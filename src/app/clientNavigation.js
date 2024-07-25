@@ -29,7 +29,7 @@ export default function ClientNavigation() {
 
   return (
     <div className="h-16 flex items-center border-black overflow-hidden shadow-lg">
-      <div className="font-bold text-xl pl-[20rem] pr-[3rem]">Cheetah</div>
+      <div className="font-bold text-xl pl-[20rem] pr-[3rem] font-black-han-sans">Cheetah</div>
       <div className="border-l-[0.09rem] border-customGray h-full mx-4"></div>
       <Link href="/" className="ml-[20rem]">
         <div
