@@ -62,7 +62,7 @@ export default function Page() {
       <div className="flex mb-14">
         <div className="bg-customBlue backdrop-blur-lg bg-opacity-80 rounded-l-lg shadow-2xl py-5 px-10">
           <div className="text-white text-[2rem] font-bold text-center mb-[-2rem]">
-            Welcome to Daesi
+            Welcome to Chee-tah
             <hr className="mx-8 mt-3" />
           </div>
           <Image
@@ -81,7 +81,7 @@ export default function Page() {
                 <div className="font-semibold">이름</div>
                 <input
                   {...register("username", { required: true })}
-                  placeholder="Daesi Lim"
+                  placeholder="Cheetah Lim"
                   className="h-10 mt-2 block w-full rounded-3xl border p-3 text-sm"
                 />
               </div>
@@ -89,7 +89,7 @@ export default function Page() {
                 <div className="font-semibold">이메일</div>
                 <input
                   {...register("email", { required: true })}
-                  placeholder="Daesi@gmail.com"
+                  placeholder="Cheetah@gmail.com"
                   className="h-10 mt-2 block w-full rounded-3xl border p-3 text-sm"
                 />
               </div>

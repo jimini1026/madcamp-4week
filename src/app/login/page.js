@@ -48,7 +48,7 @@ export default function Login() {
       <div className="mb-20">
         <form className="w-96" onSubmit={handleLoginSubmit}>
           <h1 className="m-3 mb-10 text-center text-5xl font-bold text-customBlue">
-            Daesi
+            Chee-tah
           </h1>
           <div className="mb-5">
             <label className="block text-sm" htmlFor="email">
@@ -57,7 +57,7 @@ export default function Login() {
                 className="h-15 mt-2 block w-full rounded-3xl border border-borderColor p-3 text-sm"
                 type="email"
                 id="email"
-                placeholder="Daesi@gmail.com"
+                placeholder="Cheetah@gmail.com"
                 onChange={(e) => {
                   setLoginInfo({ ...loginInfo, email: e.target.value });
                 }}
