@@ -1,3 +1,4 @@
+
 export const initialQuestionsAndAnswers = [
   {
     "question": "귀하의 이력을 검토한 결과, 저희 회사에서 특히 중요하게 여기는 기술이나 자격증이 있습니다か?",
@@ -12,3 +13,4 @@ export const initialQuestionsAndAnswers = [
     "answer": ""
   }
 ];
+  

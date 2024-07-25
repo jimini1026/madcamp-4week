@@ -9,7 +9,14 @@ export default function Profile() {
   const { state, setState } = useContext(Context);
   const [profileImg, setProfileImg] = useState("");
   const [interest, setInterest] = useState("");
+  const [feedback, setFeedback] = useState([]);
+  const [modalOn, setModalOn] = useState(false);
+  const [modalData, setModalData] = useState([]);
   const router = useRouter();
+
+  useEffect(() => {
+    console.log(modalData);
+  }, [modalOn]);
 
   const handleProfileImg = (e) => {
     const uploadImg = e.target.files[0];
@@ -54,6 +61,10 @@ export default function Profile() {
   };
 
   useEffect(() => {
+    console.log(feedback);
+  }, [feedback]);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch(
@@ -73,6 +84,17 @@ export default function Profile() {
             setProfileImg(storedImg);
           }
         }
+
+        // Fetch feedback data
+        const feedbackResponse = await fetch(
+          `/api/getFeedback?email=${encodeURIComponent(state.email)}`
+        );
+        if (!feedbackResponse.ok) {
+          throw new Error("Failed to fetch feedback data");
+        }
+
+        const feedbackData = await feedbackResponse.json();
+        setFeedback(feedbackData);
       } catch (error) {
         console.error(error);
       }
@@ -106,6 +128,28 @@ export default function Profile() {
     } catch (error) {
       console.error(error);
       alert("사용자 데이터 삭제에 실패했습니다");
+    }
+  };
+
+  const deleteFeedback = async (title) => {
+    try {
+      const response = await fetch("/api/deleteFeedback", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: state.email, title }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete feedback");
+      }
+
+      const updatedFeedback = feedback.filter((data) => data.title !== title);
+      setFeedback(updatedFeedback);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to delete feedback");
     }
   };
 
@@ -168,23 +212,68 @@ export default function Profile() {
         </div>
         <hr />
         <div className="py-5">
-          <div className="font-semibold text-lg pb-5">피드백 정보</div>
-          <div className="flex flex-wrap px-3">
-            <div className="w-full md:w-1/3 p-2 bg-red-100 flex justify-center items-center">
-              <div>피드백 리스트1</div>
-            </div>
-            <div className="w-full md:w-1/3 p-2 bg-red-100 flex justify-center items-center">
-              <div>피드백 리스트1</div>
-            </div>
-            <div className="w-full md:w-1/3 p-2 bg-red-100 flex justify-center items-center">
-              <div>피드백 리스트1</div>
-            </div>
-            <div className="w-full md:w-1/3 p-2 bg-red-100 flex justify-center items-center">
-              <div>피드백 리스트1</div>
-            </div>
-            <div className="w-full md:w-1/3 p-2 bg-red-100 flex justify-center items-center">
-              <div>피드백 리스트1</div>
-            </div>
+          <div className="font-semibold text-lg pb-5 px-2">피드백 관리</div>
+          <div className="flex flex-wrap px-3 ">
+            {feedback.map((data, index) => {
+              return (
+                <div
+                  key={index}
+                  className="w-full md:w-1/4 px-2 py-5 flex justify-center items-center"
+                >
+                  <div
+                    className="rounded-lg w-[9rem] h-[10.5rem] p-2"
+                    style={{
+                      backgroundColor: "#F8FAFF",
+                      border: "1px solid #5C8BF2",
+                    }}
+                  >
+                    <div
+                      className="font-semibold text-lg truncate px-1"
+                      style={{ color: "#5C8BF2", maxWidth: "7rem" }}
+                      title={data.title}
+                    >
+                      {data.title}
+                    </div>
+                    <hr
+                      className="border-t-1 w-full my-2"
+                      style={{ borderColor: "#5C8BF2" }}
+                    />
+                    <div className="text-sm px-1 flex flex-col gap-1">
+                      {data.QnA.map((qna, index) => {
+                        return (
+                          <div
+                            key={index}
+                            style={{ maxWidth: "8rem" }}
+                            className="truncate text-xs font-semibold"
+                            title={qna.question}
+                          >
+                            <b className="text-sm">Q{index + 1} : </b>
+                            {qna.question}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="flex gap-1 pt-2">
+                      <button
+                        className="bg-customGray text-sm text-white font-semibold py-1 px-2 rounded-l-lg"
+                        onClick={() => deleteFeedback(data.title)}
+                      >
+                        del
+                      </button>
+                      <button
+                        className="bg-customBlue text-sm font-semibold text-white py-1 px-2 rounded-r-lg"
+                        onClick={() => {
+                          setModalOn(true);
+                          setModalData(data);
+                        }}
+                      >
+                        read more
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
         <hr />
@@ -216,6 +305,59 @@ export default function Profile() {
           </div>
         </div>
       </div>
+      {modalOn ? (
+        <div
+          className="fixed inset-0 z-20 flex justify-center items-center bg-gray-800 bg-opacity-50"
+          onClick={() => setModalOn(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className=" rounded-lg w-[40rem] h-[39rem] px-10 py-5"
+            style={{ backgroundColor: "#F8FAFF" }}
+          >
+            <div className="font-bold text-2xl" style={{ color: "#5C8BF2" }}>
+              Feedback Management
+            </div>
+            <hr className="border-black my-3" />
+            <div className="font-semibold text-lg flex pt-2 pb-5">
+              <div>"{modalData.title}"</div>
+              <div className="text-customGray text-base pt-1">
+                &nbsp;의 모의면접 피드백 결과
+              </div>
+            </div>
+            <div className="flex flex-col gap-5 overflow-y-auto h-[28rem] pr-3">
+              {modalData.feedbackResult.map((data, index) => {
+                return (
+                  <div key={index}>
+                    <div className="text-sm font-semibold">
+                      <span className="font-bold text-lg text-red-500">
+                        Q{index + 1}.
+                      </span>
+                      &nbsp;{modalData.QnA[index].question}
+                    </div>
+                    <div className="text-sm font-semibold py-3">
+                      <span className="font-bold text-lg">A{index + 1}.</span>
+                      &nbsp;
+                      {modalData.QnA[index].answer}
+                    </div>
+                    <div className="font-semibold text-sm flex flex-col gap-1">
+                      <div>
+                        <div>Feedback.</div>
+                        <div>{data.feedback}</div>
+                      </div>
+                      <div>
+                        <div className="text-blue-600">Improvement.</div>
+                        <div>{data.improvement}</div>
+                      </div>
+                    </div>
+                    <hr className="mt-4 border-customGray" />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

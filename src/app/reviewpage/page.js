@@ -14,6 +14,7 @@ const ReviewPage = () => {
   const [totalScore, setTotalScore] = useState(0);
   const [grade, setGrade] = useState("");
   const [essayTitle, setEssayTitle] = useState("");
+  const [loading, setLoading] = useState(true); // 로딩 상태 추가
   const { state } = useContext(Context);
 
   useEffect(() => {
@@ -43,6 +44,17 @@ const ReviewPage = () => {
     }
   }, [essayTitle]);
 
+  useEffect(() => {
+    if (
+      state.email &&
+      essayTitle &&
+      questionsAndAnswers.length > 0 &&
+      feedbacks.length > 0
+    ) {
+      saveFeedbackData(state.email, essayTitle, questionsAndAnswers, feedbacks);
+    }
+  }, [state.email, essayTitle, questionsAndAnswers, feedbacks]);
+
   const fetchFeedbacks = async (parsedQnA) => {
     try {
       const feedbackPromises = parsedQnA.map(async (qa) => {
@@ -60,11 +72,7 @@ const ReviewPage = () => {
       const feedbackResults = await Promise.all(feedbackPromises);
       setFeedbacks(feedbackResults);
       console.log("feedbackResult : ", feedbackResults);
-      fetchSentiments(
-        feedbackResults.map((result) => result.feedback),
-        parsedQnA,
-        feedbackResults
-      );
+      fetchSentiments(feedbackResults.map((result) => result.feedback));
     } catch (error) {
       console.error("Error fetching feedback:", error);
       if (error.response) {
@@ -81,7 +89,7 @@ const ReviewPage = () => {
     }
   };
 
-  const fetchSentiments = async (feedbacks, parsedQnA, feedbackResults) => {
+  const fetchSentiments = async (feedbacks) => {
     try {
       const sentimentPromises = feedbacks.map(async (feedback) => {
         const response = await axios.post("/api/sentiment", {
@@ -94,7 +102,6 @@ const ReviewPage = () => {
       const sentimentResults = await Promise.all(sentimentPromises);
       setSentiments(sentimentResults);
       calculateTotalScore(sentimentResults);
-      saveFeedbackData(state.email, essayTitle, parsedQnA, feedbackResults);
     } catch (error) {
       console.error("Error fetching sentiments:", error);
       if (error.response) {
@@ -131,29 +138,35 @@ const ReviewPage = () => {
     }
   };
 
-  const calculateScore = (maxDeg) => {
-    if (maxDeg === "P") return 1;
-    if (maxDeg === "M") return 0;
-    if (maxDeg === "N") return -1;
+  const calculateScore = (sentiment) => {
+    const { positive, neutral, negative, max_deg } = sentiment;
+    if (max_deg === "P") return 1;
+    if (max_deg === "M") {
+      if (positive > negative) return 0.5;
+      if (negative > positive) return -0.5;
+      return 0;
+    }
+    if (max_deg === "N") return -1;
     return 0; // 기본값
   };
 
   const calculateTotalScore = (sentiments) => {
     const maxDegs = sentiments.map((sentiment) => sentiment.max_deg);
-    const score = maxDegs.reduce(
-      (acc, maxDeg) => acc + calculateScore(maxDeg),
+    const score = sentiments.reduce(
+      (acc, sentiment) => acc + calculateScore(sentiment),
       0
     );
     const f_score = score / questionsAndAnswers.length;
     setTotalScore(score);
     setGrade(determineGrade(f_score));
+    setLoading(false); // 로딩 상태 설정
   };
 
   const determineGrade = (f_score) => {
-    if (f_score === 1) return "S";
-    if (f_score > 0.6) return "A";
-    if (f_score > 0.4) return "B";
-    if (f_score > 0) return "C";
+    if (f_score >0.8) return "S";
+    if (f_score > 0.5) return "A";
+    if (f_score > 0) return "B";
+    if (f_score > -0.6) return "C";
     return "F"; // 기본값
   };
 
@@ -170,7 +183,9 @@ const ReviewPage = () => {
         <div className="text-2xl font-bold text-center">모의 면접 평가</div>
         <div className="text-3xl text-center font-bold pt-3">
           등급 :{" "}
-          {grade === "S" ? (
+          {loading ? (
+            <span className="text-customGray text-2xl dot-animate">평가 중</span>
+          ) : grade === "S" ? (
             <b className="text-yellow-400">S</b>
           ) : grade === "A" ? (
             <b className="text-red-500">A</b>
@@ -220,6 +235,30 @@ const ReviewPage = () => {
           <p>No data available</p>
         )}
       </div>
+      <style jsx>{`
+        @keyframes dot-animate {
+          0% {
+            content: '';
+          }
+          20% {
+            content: '.';
+          }
+          40% {
+            content: '..';
+          }
+          60% {
+            content: '...';
+          }
+          100% {
+            content: '';
+          }
+        }
+
+        .dot-animate:after {
+          content: '';
+          animation: dot-animate 2.5s infinite steps(1, end);
+        }
+      `}</style>
     </div>
   );
 };

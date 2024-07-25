@@ -62,7 +62,7 @@ export default function Page() {
       <div className="flex mb-14">
         <div className="bg-customBlue backdrop-blur-lg bg-opacity-80 rounded-l-lg shadow-2xl py-5 px-10">
           <div className="text-white text-[2rem] font-bold text-center mb-[-2rem]">
-            Welcome to Daesi
+            Welcome to Chee-tah
             <hr className="mx-8 mt-3" />
           </div>
           <Image
@@ -74,27 +74,27 @@ export default function Page() {
           />
         </div>
         <div className="bg-white rounded-r-lg shadow-2xl px-16 pb-10 pt-5 flex flex-col items-center w-auto">
-          <div className="text-black font-bold text-[2rem] pb-5">Sign Up</div>
+          <div className="text-black font-bold text-[2rem] pb-5">회원가입</div>
           <form onSubmit={handleSubmit(registerSubmit)}>
             <div className="flex flex-col gap-3 w-[17rem]">
               <div>
-                <div className="font-semibold">username</div>
+                <div className="font-semibold">이름</div>
                 <input
                   {...register("username", { required: true })}
-                  placeholder="Daesi Lim"
+                  placeholder="Cheetah Lim"
                   className="h-10 mt-2 block w-full rounded-3xl border p-3 text-sm"
                 />
               </div>
               <div>
-                <div className="font-semibold">email</div>
+                <div className="font-semibold">이메일</div>
                 <input
                   {...register("email", { required: true })}
-                  placeholder="Daesi@gmail.com"
+                  placeholder="Cheetah@gmail.com"
                   className="h-10 mt-2 block w-full rounded-3xl border p-3 text-sm"
                 />
               </div>
               <div>
-                <div className="font-semibold">password</div>
+                <div className="font-semibold">비밀번호</div>
                 <input
                   {...register("password", { required: true })}
                   className="h-10 mt-2 block w-full rounded-3xl border p-3 text-sm"
@@ -104,7 +104,7 @@ export default function Page() {
                 />
               </div>
               <div>
-                <div className="font-semibold">confirm password</div>
+                <div className="font-semibold">비밀번호 확인</div>
                 <input
                   {...register("confirmPassword", { required: true })}
                   className="h-10 mt-2 block w-full rounded-3xl border p-3 text-sm"
@@ -116,7 +116,7 @@ export default function Page() {
             </div>
             <div className="pt-5">
               <button className="h-10 mt-5 w-full rounded-3xl text-white bg-customBlue">
-                Sign Up
+                회원가입 하기
               </button>
             </div>
             <div className="flex pt-3 gap-3 justify-center">
