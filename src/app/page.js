@@ -43,7 +43,7 @@ export default function Home() {
 
   return (
     <div className="relative h-screen overflow-hidden flex flex-col justify-between">
-      <div className="absolute top-0 w-full -z-10">
+      <div className="absolute top-0 w-full -z-10 animate__animated animate__fadeIn">
         <Image
           src="/images/mainBlack.png"
           layout="responsive"
@@ -75,7 +75,7 @@ export default function Home() {
           <div>쉽고 효과적인 AI 도움으로 성공적인 미래를 만들어보세요.</div>
         </div>
       </div>
-      <div className="pl-36 pt-20">
+      <div className="pl-36 pt-20 animate__animated animate__fadeIn">
         <Image
           src="/images/mainImg.png"
           alt="메인이미지"
@@ -84,7 +84,7 @@ export default function Home() {
         />
       </div>
       <div className="flex-grow"></div>
-      <div className="w-full">
+      <div className="w-full animate__animated animate__fadeIn">
         <Image
           src="/images/mainGray.png"
           width={1920}
