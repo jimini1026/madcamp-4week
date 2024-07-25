@@ -1,5 +1,6 @@
 "use client";
 
+import 'animate.css';
 import Image from "next/image";
 import Link from "next/link";
 import { useContext, useEffect } from "react";
@@ -26,17 +27,17 @@ export default function Home() {
         </div>
         <div className="text-white text-3xl font-bold pt-9 pl-44">
           {state.username ? (
-            <div>Hello {state.username}!</div>
+            <div>안녕하세요, {state.username}님!</div>
           ) : (
             <Link href="/login">Join the site {">>"}</Link>
           )}
         </div>
       </div>
       <div className="absolute right-[20rem] top-[24rem]">
-        <div className="text-customBlue text-2xl font-bold text-right">
+        <div className="text-customBlue text-2xl font-bold text-right animate__animated animate__fadeIn">
           자소서, 면접 모두 Daesi에서
         </div>
-        <div className="text-black font-bold pt-2 pl-14 text-right">
+        <div className="text-black font-bold pt-2 pl-14 text-right animate__animated animate__fadeIn">
           <div>AI의 맞춤형 피드백과 충분한 연습 기회를 통해</div>
           <div>합격을 향한 준비를 완성하세요.</div>
           <div>쉽고 효과적인 AI 도움으로 성공적인 미래를 만들어보세요.</div>

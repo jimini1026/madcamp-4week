@@ -16,6 +16,7 @@ module.exports = {
         customGray: "#949494",
         customBlue: "#2282B9",
         customGrayLight: "#FAFAFA",
+        customGrayDark: 'rgb(242, 242, 242)',
         placeHolder: "#A1A1A1",
         lightWhite: "#FCFCFC",
       },

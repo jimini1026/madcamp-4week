@@ -116,36 +116,17 @@ const ReviewPage = () => {
       (acc, maxDeg) => acc + calculateScore(maxDeg),
       0
     );
+    const f_score = score / questionsAndAnswers.length;
     setTotalScore(score);
-    setGrade(determineGrade(maxDegs));
+    setGrade(determineGrade(f_score));
   };
 
-  const determineGrade = (maxDegs) => {
-    const frequency = maxDegs.reduce((acc, maxDeg) => {
-      acc[maxDeg] = (acc[maxDeg] || 0) + 1;
-      return acc;
-    }, {});
-
-    const maxFreq = Math.max(...Object.values(frequency));
-    const mostFrequentDegs = Object.keys(frequency).filter(
-      (deg) => frequency[deg] === maxFreq
-    );
-
-    if (mostFrequentDegs.length > 1) {
-      return "B"; // 최빈값이 동일한 경우 B 등급
-    }
-
-    const mostFrequentDeg = mostFrequentDegs[0];
-
-    if (mostFrequentDeg === "P" && frequency["P"] === maxDegs.length)
-      return "S";
-    if (mostFrequentDeg === "N" && frequency["N"] === maxDegs.length)
-      return "F";
-
-    if (mostFrequentDeg === "P") return "A";
-    if (mostFrequentDeg === "M") return "B";
-    if (mostFrequentDeg === "N") return "C";
-    return ""; // 기본값
+  const determineGrade = (f_score) => {
+    if (f_score === 1) return "S";
+    if (f_score > 0.6) return "A";
+    if (f_score > 0.4) return "B";
+    if (f_score > 0) return "C";
+    return "F"; // 기본값
   };
 
   const toggleFeedback = (index) => {
