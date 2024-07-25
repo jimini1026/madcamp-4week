@@ -46,10 +46,10 @@ export default function Profile() {
         throw new Error("Failed to save interest");
       }
 
-      alert("Interest saved successfully!");
+      alert("관심분야가 성공적으로 저장되었습니다!");
     } catch (error) {
       console.error(error);
-      alert("Failed to save interest");
+      alert("관심분야 저장에 실패하였습니다");
     }
   };
 
@@ -100,12 +100,12 @@ export default function Profile() {
       const imgKey = `profile_${state.email}`;
       localStorage.removeItem(imgKey);
 
-      alert("User data deleted successfully!");
+      alert("사용자 데이터가 성공적으로 삭제되었습니다!");
       setState({ username: "", email: "" });
       router.push("/");
     } catch (error) {
       console.error(error);
-      alert("Failed to delete user data");
+      alert("사용자 데이터 삭제에 실패했습니다");
     }
   };
 
