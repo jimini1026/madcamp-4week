@@ -46,7 +46,7 @@ export default function VirtualInterview() {
       setContent(null);
     } else {
       setSelectedEssayIndex(index);
-      setContent(essays[index].content);
+      setContent(essays[index]?.content || "");
     }
   };
 
@@ -63,7 +63,7 @@ export default function VirtualInterview() {
         body: JSON.stringify({
           content: selectedEssay.content,
           numQuestions: 3,
-        }), // 요청 시 문제의 수를 지정
+        }),
       });
       const questionsData = await response.json();
 
@@ -127,25 +127,29 @@ export default function VirtualInterview() {
           <div className="text-black px-4 pb-2">자소서 리스트</div>
           <hr className="border border-black mb-3" />
           <div className="flex flex-col gap-3 h-[23rem] overflow-y-auto">
-            {essays.map((essay, index) => {
-              return (
-                <div
-                  key={index}
-                  className={`${
-                    selectedEssayIndex === index
-                      ? "bg-customBlue text-white"
-                      : "bg-white"
-                  } px-4 py-4 rounded-lg border-2`}
-                  style={{ borderColor: "#D6D6D6" }}
-                  onClick={() => {
-                    handleExpand(index);
-                    handleCheckboxChange(index);
-                  }}
-                >
-                  <div className="font-semibold text-lg">{essay.title}</div>
-                </div>
-              );
-            })}
+            {Array.isArray(essays) && essays.length > 0 ? (
+              essays.map((essay, index) => {
+                return (
+                  <div
+                    key={index}
+                    className={`${
+                      selectedEssayIndex === index
+                        ? "bg-customBlue text-white"
+                        : "bg-white"
+                    } px-4 py-4 rounded-lg border-2`}
+                    style={{ borderColor: "#D6D6D6" }}
+                    onClick={() => {
+                      handleExpand(index);
+                      handleCheckboxChange(index);
+                    }}
+                  >
+                    <div className="font-semibold text-lg">{essay.title}</div>
+                  </div>
+                );
+              })
+            ) : (
+              <div>No essays available.</div>
+            )}
           </div>
           <div
             className={`${
