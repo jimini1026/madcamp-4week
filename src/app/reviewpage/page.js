@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import axios from "axios";
+import { Context } from "../appProvider";
 
 const ReviewPage = () => {
   const searchParams = useSearchParams();
@@ -13,6 +14,7 @@ const ReviewPage = () => {
   const [totalScore, setTotalScore] = useState(0);
   const [grade, setGrade] = useState("");
   const [essayTitle, setEssayTitle] = useState("");
+  const { state } = useContext(Context);
 
   useEffect(() => {
     const qnaParam = searchParams.get("qna");
@@ -28,6 +30,12 @@ const ReviewPage = () => {
       console.error("Title is not defined in query params");
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    if (questionsAndAnswers.length > 0) {
+      console.log("Questions and answers:", questionsAndAnswers);
+    }
+  }, [questionsAndAnswers]);
 
   useEffect(() => {
     if (essayTitle) {
@@ -51,7 +59,12 @@ const ReviewPage = () => {
       });
       const feedbackResults = await Promise.all(feedbackPromises);
       setFeedbacks(feedbackResults);
-      fetchSentiments(feedbackResults.map((result) => result.feedback));
+      console.log("feedbackResult : ", feedbackResults);
+      fetchSentiments(
+        feedbackResults.map((result) => result.feedback),
+        parsedQnA,
+        feedbackResults
+      );
     } catch (error) {
       console.error("Error fetching feedback:", error);
       if (error.response) {
@@ -68,7 +81,7 @@ const ReviewPage = () => {
     }
   };
 
-  const fetchSentiments = async (feedbacks) => {
+  const fetchSentiments = async (feedbacks, parsedQnA, feedbackResults) => {
     try {
       const sentimentPromises = feedbacks.map(async (feedback) => {
         const response = await axios.post("/api/sentiment", {
@@ -81,6 +94,7 @@ const ReviewPage = () => {
       const sentimentResults = await Promise.all(sentimentPromises);
       setSentiments(sentimentResults);
       calculateTotalScore(sentimentResults);
+      saveFeedbackData(state.email, essayTitle, parsedQnA, feedbackResults);
     } catch (error) {
       console.error("Error fetching sentiments:", error);
       if (error.response) {
@@ -89,6 +103,20 @@ const ReviewPage = () => {
         console.error("Response headers:", error.response.headers);
       }
       setSentiments(feedbacks.map(() => "Error fetching sentiment"));
+    }
+  };
+
+  const saveFeedbackData = async (email, title, QnA, feedbackResult) => {
+    try {
+      const response = await axios.post("/api/saveFeedback", {
+        email,
+        title,
+        QnA,
+        feedbackResult,
+      });
+      console.log("Feedback data saved successfully:", response.data);
+    } catch (error) {
+      console.error("Error saving feedback data:", error);
     }
   };
 

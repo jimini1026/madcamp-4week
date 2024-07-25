@@ -3,7 +3,6 @@
 import { useContext, useState } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import Image from "next/image";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { Context } from "../../appProvider";
@@ -13,7 +12,7 @@ import { MdOutlineSaveAlt } from "react-icons/md";
 import { useRouter } from "next/navigation";
 
 export default function Create() {
-  const { state, setState } = useContext(Context);
+  const { state } = useContext(Context);
   const gemini = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY);
 
   const [generatedEssay, setGeneratedEssay] = useState("");
@@ -23,7 +22,6 @@ export default function Create() {
   const {
     register,
     handleSubmit,
-    getValues,
     formState: { errors },
   } = useForm();
 
