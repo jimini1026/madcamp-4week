@@ -113,6 +113,12 @@ export default function Edit() {
     }
   };
 
+  const handleCancel = () => {
+    if (confirm("종료하시겠습니까?")) {
+      router.push("/selfIntroduction");
+    }
+  };
+
   const SpellCheckTag = ({ data }) => {
     return (
       <div className="border-b">
@@ -186,9 +192,9 @@ export default function Edit() {
               </button>
               <button
                 className="bg-customGray text-lg rounded-lg px-3 py-1 font-bold"
-                onClick={() => setSelfIntroductionData("")}
+                onClick={handleCancel}
               >
-                Delete
+                Cancel
               </button>
             </div>
           </div>
