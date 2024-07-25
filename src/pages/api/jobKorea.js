@@ -13,12 +13,14 @@ const crawlJobKorea = async (interest) => {
     const company = $(element).find('.name').text().trim();
     const location = $(element).find('.loc').text().trim();
     const datePosted = $(element).find('.date').text().trim();
+    const link = $(element).find('a').attr('href'); // Fetch the job link
 
     jobListings.push({
       title,
       company,
       location,
       datePosted,
+      link: `https://www.jobkorea.co.kr${link}`, // Make sure the link is complete
     });
   });
 

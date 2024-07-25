@@ -155,7 +155,7 @@ export default function StreamingAvatar({ essayTitle }) {
 
   const startInterview = async () => {
     setStartClicked(true);
-    await handleSpeak("안녕하십니까. 면접을 시작하도록 하겠습니다.");
+    await handleSpeak("안녕하십니까. 면접을 시작하도록 하겠습니다............");
     if (questionsAndAnswers.length > 0) {
       setDisplayedQuestions([questionsAndAnswers[0].question]);
       setCurrentQuestionIndex(0); // Reset to the first question
