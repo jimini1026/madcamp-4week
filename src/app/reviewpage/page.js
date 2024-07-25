@@ -43,6 +43,17 @@ const ReviewPage = () => {
     }
   }, [essayTitle]);
 
+  useEffect(() => {
+    if (
+      state.email &&
+      essayTitle &&
+      questionsAndAnswers.length > 0 &&
+      feedbacks.length > 0
+    ) {
+      saveFeedbackData(state.email, essayTitle, questionsAndAnswers, feedbacks);
+    }
+  }, [state.email, essayTitle, questionsAndAnswers, feedbacks]);
+
   const fetchFeedbacks = async (parsedQnA) => {
     try {
       const feedbackPromises = parsedQnA.map(async (qa) => {
@@ -60,11 +71,7 @@ const ReviewPage = () => {
       const feedbackResults = await Promise.all(feedbackPromises);
       setFeedbacks(feedbackResults);
       console.log("feedbackResult : ", feedbackResults);
-      fetchSentiments(
-        feedbackResults.map((result) => result.feedback),
-        parsedQnA,
-        feedbackResults
-      );
+      fetchSentiments(feedbackResults.map((result) => result.feedback));
     } catch (error) {
       console.error("Error fetching feedback:", error);
       if (error.response) {
@@ -81,7 +88,7 @@ const ReviewPage = () => {
     }
   };
 
-  const fetchSentiments = async (feedbacks, parsedQnA, feedbackResults) => {
+  const fetchSentiments = async (feedbacks) => {
     try {
       const sentimentPromises = feedbacks.map(async (feedback) => {
         const response = await axios.post("/api/sentiment", {
@@ -94,7 +101,6 @@ const ReviewPage = () => {
       const sentimentResults = await Promise.all(sentimentPromises);
       setSentiments(sentimentResults);
       calculateTotalScore(sentimentResults);
-      saveFeedbackData(state.email, essayTitle, parsedQnA, feedbackResults);
     } catch (error) {
       console.error("Error fetching sentiments:", error);
       if (error.response) {

@@ -21,7 +21,7 @@ module.exports = {
         lightWhite: "#FCFCFC",
       },
       fontFamily: {
-        pretendard: ['Pretendard-Regular', 'sans-serif'],
+        pretendard: ["Pretendard-Regular", "sans-serif"],
       },
     },
   },
