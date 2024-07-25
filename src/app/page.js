@@ -13,7 +13,7 @@ export default function Home() {
   const listRef = useRef(null);
 
   useEffect(() => {
-    console.log("Interest:", state.interest);  // Add this line to log the interest
+    console.log("Interest:", state.interest);
 
     if (state.username) {
       const fetchJobListings = async () => {
@@ -113,10 +113,12 @@ export default function Home() {
                     .filter((job, index) => index !== 0 && job.company !== undefined)
                     .map((job, index) => (
                       <li key={index} className="w-[300px] h-auto p-4 border rounded-lg hover:shadow-lg flex-shrink-0">
-                        {job.title && <h3 className="text-xl font-bold truncate">{job.title}</h3>}
-                        {job.company && <p className="truncate">Company: {job.company}</p>}
-                        {job.location && <p className="truncate">Location: {job.location}</p>}
-                        {job.datePosted && <p className="truncate">Date Posted: {job.datePosted}</p>}
+                        <a href={job.link} target="_blank" rel="noopener noreferrer">
+                          {job.title && <h3 className="text-xl font-bold truncate">{job.title}</h3>}
+                          {job.company && <p className="truncate">Company: {job.company}</p>}
+                          {job.location && <p className="truncate">Location: {job.location}</p>}
+                          {job.datePosted && <p className="truncate">Date Posted: {job.datePosted}</p>}
+                        </a>
                       </li>
                     ))
                 ) : (
