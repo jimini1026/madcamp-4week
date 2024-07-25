@@ -34,15 +34,17 @@ export default function StreamingAvatar({ essayTitle }) {
 
   const mediaStream = useRef(null);
   const avatar = useRef(null);
-  const cameraStreamRef = useRef(null);
 
-  const avatarIds = ["Wayne_20240711", "josh_lite3_20230714"];
-  const voiceIds = [
-    "26b2064088674c80b1e5fc5ab1a068ea",
-    "433c48a6c8944d89b3b76d2ddcc7176a",
-  ];
+  const avatarVoiceMapping = {
+    "Wayne_20240711": "26b2064088674c80b1e5fc5ab1a068ea",
+    "josh_lite3_20230714": "433c48a6c8944d89b3b76d2ddcc7176a"
+  };
 
-  const getRandomElement = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  const getRandomElement = (obj) => {
+    const keys = Object.keys(obj);
+    const randomKey = keys[Math.floor(Math.random() * keys.length)];
+    return { avatarId: randomKey, voiceId: obj[randomKey] };
+  };
 
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef(null);
@@ -78,15 +80,9 @@ export default function StreamingAvatar({ essayTitle }) {
       avatar.current = await initializeAvatar(newToken);
       setInitialized(true);
 
-      const selectedAvatarId = getRandomElement(avatarIds);
-      const selectedVoiceId = getRandomElement(voiceIds);
+      const { avatarId, voiceId } = getRandomElement(avatarVoiceMapping);
 
-      const res = await startAvatarSession(
-        avatar.current,
-        selectedAvatarId,
-        selectedVoiceId,
-        console.log
-      );
+      const res = await startAvatarSession(avatar.current, avatarId, voiceId, console.log);
       setData(res);
       setStream(avatar.current.mediaStream);
     }
@@ -109,27 +105,7 @@ export default function StreamingAvatar({ essayTitle }) {
   }, [stream]);
 
   useEffect(() => {
-    async function setupCamera() {
-      try {
-        const cameraStream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-        });
-        cameraStreamRef.current.srcObject = cameraStream;
-        cameraStreamRef.current.onloadedmetadata = () => {
-          cameraStreamRef.current.play();
-          console.log("Playing camera stream");
-        };
-      } catch (err) {
-        console.error("Error accessing camera:", err);
-      }
-    }
-    setupCamera();
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener("beforeunload", () =>
-      endAvatarSession(avatar.current, data?.sessionId, console.log)
-    );
+    window.addEventListener("beforeunload", () => endAvatarSession(avatar.current, data?.sessionId, console.log));
     return () => {
       window.removeEventListener("beforeunload", () =>
         endAvatarSession(avatar.current, data?.sessionId, console.log)
@@ -179,7 +155,7 @@ export default function StreamingAvatar({ essayTitle }) {
 
   const startInterview = async () => {
     setStartClicked(true);
-    await handleSpeak("안녕하십니까. 면접을 시작하도록 하겠습니다");
+    await handleSpeak("안녕하십니까. 면접을 시작하도록 하겠습니다.");
     if (questionsAndAnswers.length > 0) {
       setDisplayedQuestions([questionsAndAnswers[0].question]);
       setCurrentQuestionIndex(0); // Reset to the first question
@@ -191,19 +167,19 @@ export default function StreamingAvatar({ essayTitle }) {
     <div className="h-[40.5rem] w-full flex flex-col gap-4 overflow-hidden relative">
       {!startClicked && (
         <div className="absolute inset-0 z-20 flex justify-center items-center bg-gray-800 bg-opacity-50">
-          {avatarReady ? (
-            <Button
-              onClick={startInterview}
-              className="bg-transparent text-white border-2 border-white rounded-md"
-            >
-              시작하기
-            </Button>
-          ) : (
-            <div className="text-white text-2xl">
-              준비 중<span className="dot-animate"></span>
-            </div>
-          )}
-        </div>
+        {avatarReady ? (
+          <Button 
+            onClick={startInterview} 
+            className="bg-transparent text-white border-2 border-white rounded-md text-2xl font-bold py-0 px-6 text-center"
+          >
+            시작하기
+          </Button>
+        ) : (
+          <div className="text-white text-2xl font-bold">
+            준비 중<span className="dot-animate"></span>
+          </div>
+        )}
+      </div>      
       )}
       <div
         className={`w-full h-full absolute inset-0 ${
@@ -235,15 +211,8 @@ export default function StreamingAvatar({ essayTitle }) {
                 <Spinner size="lg" color="default" />
               )}
             </div>
-            <div className="h-[400px] w-[550px] flex items-center justify-center overflow-hidden rounded-lg">
-              <video
-                ref={cameraStreamRef}
-                autoPlay
-                playsInline
-                className="h-full w-auto object-cover"
-              >
-                <track kind="captions" />
-              </video>
+            <div className="h-[400px] w-[550px] flex items-center justify-center overflow-hidden rounded-lg relative">
+              <FaceDetection width="100%" height="100%" />
             </div>
           </div>
         </CardBody>
@@ -251,34 +220,12 @@ export default function StreamingAvatar({ essayTitle }) {
         <CardFooter className="flex flex-col gap-3">
           {startClicked && (
             <>
-              <div className="flex justify-center items-center gap-4 mb-4">
-                <div
-                  onClick={() => setShowSubtitles(!showSubtitles)}
-                  className="flex flex-col items-center cursor-pointer"
-                >
-                  <Image
-                    src="/assets/subtitle.png"
-                    alt="자막 보기"
-                    width={40}
-                    height={40}
-                  />
-                  <span className="text-white">자막 보기</span>
+              <div className="flex justify-center items-center gap-10 mb-4">
+                <div onClick={() => setShowSubtitles(!showSubtitles)} className="flex flex-col items-center cursor-pointer">
+                  <Image src="/assets/subtitle.png" alt="자막 보기" width={40} height={40} />
                 </div>
-                <div
-                  onClick={
-                    isRecording ? handleStopRecording : handleStartRecording
-                  }
-                  className="flex flex-col items-center cursor-pointer"
-                >
-                  <Image
-                    src={isRecording ? "/assets/rec.png" : "/assets/bf_rec.png"}
-                    alt="Start Recording"
-                    width={40}
-                    height={40}
-                  />
-                  <span className="text-white">
-                    {isRecording ? "녹음 중" : "녹음 시작"}
-                  </span>
+                <div onClick={isRecording ? handleStopRecording : handleStartRecording} className="flex flex-col items-center cursor-pointer">
+                  <Image src={isRecording ? "/assets/rec.png" : "/assets/bf_rec.png"} alt="Start Recording" width={40} height={40} />
                 </div>
               </div>
             </>

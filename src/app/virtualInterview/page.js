@@ -124,7 +124,7 @@ export default function VirtualInterview() {
           className=" h-[31rem] px-10 py-5"
           style={{ backgroundColor: "#F2F2F2" }}
         >
-          <div className="text-black px-4 pb-2">cover letter Lists</div>
+          <div className="text-black px-4 pb-2">자소서 리스트</div>
           <hr className="border border-black mb-3" />
           <div className="flex flex-col gap-3 h-[23rem] overflow-y-auto">
             {essays.map((essay, index) => {
@@ -165,7 +165,7 @@ export default function VirtualInterview() {
           style={{ backgroundColor: "#F2F2F2" }}
         >
           <div className="font-semibold text-lg">자소서 미리보기</div>
-          <div className="text-sm">read-only</div>
+          <div className="text-sm">읽기 전용(Read Only)</div>
         </div>
         <div className="px-7 py-5 h-[29rem] w-[38rem] overflow-y-auto">
           {content}

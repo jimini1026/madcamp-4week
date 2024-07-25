@@ -13,7 +13,7 @@ export async function startAvatarSession(avatar, avatarId, voiceId, setDebug) {
     const res = await avatar.createStartAvatar(
       {
         newSessionRequest: {
-          quality: "low",
+          quality: "high",
           avatarName: avatarId,
           voice: { voiceId: voiceId },
         },
