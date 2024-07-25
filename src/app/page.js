@@ -67,7 +67,7 @@ export default function Home() {
       </div>
       <div className="absolute right-[20rem] top-[24rem]">
         <div className="text-customBlue text-2xl font-bold text-right animate__animated animate__fadeIn">
-          자소서, 면접 모두 Daesi에서
+          자소서, 면접 모두 Chee-tah에서
         </div>
         <div className="text-black font-bold pt-2 pl-14 text-right animate__animated animate__fadeIn">
           <div>AI의 맞춤형 피드백과 충분한 연습 기회를 통해</div>
