@@ -22,6 +22,7 @@ module.exports = {
       },
       fontFamily: {
         pretendard: ["Pretendard-Regular", "sans-serif"],
+        'black-han-sans': ['"Black Han Sans"', 'sans-serif'],
       },
     },
   },
