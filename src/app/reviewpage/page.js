@@ -44,17 +44,6 @@ const ReviewPage = () => {
     }
   }, [essayTitle]);
 
-  useEffect(() => {
-    if (
-      state.email &&
-      essayTitle &&
-      questionsAndAnswers.length > 0 &&
-      feedbacks.length > 0
-    ) {
-      saveFeedbackData(state.email, essayTitle, questionsAndAnswers, feedbacks);
-    }
-  }, [state.email, essayTitle, questionsAndAnswers, feedbacks]);
-
   const fetchFeedbacks = async (parsedQnA) => {
     try {
       const feedbackPromises = parsedQnA.map(async (qa) => {
@@ -72,7 +61,11 @@ const ReviewPage = () => {
       const feedbackResults = await Promise.all(feedbackPromises);
       setFeedbacks(feedbackResults);
       console.log("feedbackResult : ", feedbackResults);
-      fetchSentiments(feedbackResults.map((result) => result.feedback));
+      fetchSentiments(
+        feedbackResults.map((result) => result.feedback),
+        parsedQnA,
+        feedbackResults
+      );
     } catch (error) {
       console.error("Error fetching feedback:", error);
       if (error.response) {
@@ -89,7 +82,7 @@ const ReviewPage = () => {
     }
   };
 
-  const fetchSentiments = async (feedbacks) => {
+  const fetchSentiments = async (feedbacks, parsedQnA, feedbackResults) => {
     try {
       const sentimentPromises = feedbacks.map(async (feedback) => {
         const response = await axios.post("/api/sentiment", {
@@ -102,6 +95,7 @@ const ReviewPage = () => {
       const sentimentResults = await Promise.all(sentimentPromises);
       setSentiments(sentimentResults);
       calculateTotalScore(sentimentResults);
+      saveFeedbackData(state.email, essayTitle, parsedQnA, feedbackResults);
     } catch (error) {
       console.error("Error fetching sentiments:", error);
       if (error.response) {
@@ -163,7 +157,7 @@ const ReviewPage = () => {
   };
 
   const determineGrade = (f_score) => {
-    if (f_score >0.8) return "S";
+    if (f_score > 0.8) return "S";
     if (f_score > 0.5) return "A";
     if (f_score > 0) return "B";
     if (f_score > -0.6) return "C";
@@ -176,7 +170,7 @@ const ReviewPage = () => {
       [index]: !prev[index],
     }));
   };
-
+  
   return (
     <div className="flex flex-col items-center p-5 mt-14">
       <div className="w-full max-w-3xl mb-4 p-4 border rounded-lg shadow-md">
