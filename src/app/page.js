@@ -54,7 +54,7 @@ export default function Home() {
       </div>
       <div className="absolute right-80 top-28">
         <div className="text-white text-5xl font-bold">
-          Welcome to <span className="text-customBlue">Daesi</span>
+          Welcome to <span className="text-customBlue">Cheetah</span>
           <hr className="color-white mt-3" />
         </div>
         <div className="text-white text-3xl font-bold pt-9 pl-44">
